@@ -7,6 +7,7 @@ Servo hip3;
 Servo knee3;
 Servo hip4;
 Servo knee4;
+/////
 // set variables needed for some tasks
 int b;
 int x;
