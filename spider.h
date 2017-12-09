@@ -24,19 +24,16 @@ http://stembot.vn
 #define knee4_pin	11
 #include <Servo.h>
 
-Servo hip1;
-Servo knee1;
-Servo hip2;
-Servo knee2;
-Servo hip3;
-Servo knee3;
-Servo hip4;
-Servo knee4;
 
-Class 
+
+class spider
 {
 public:
-	spider(); 
+//	spider(): hip1(),knee1(),hip2(),knee2(),hip3(),knee3(),hip4(),knee4()
+//	 {};
+	spider();
+
+	void init();
 	void standUp(int t);
 	void layDown(int t);
 	void sleep(int t);
@@ -50,20 +47,14 @@ public:
 	void turnright(int late);
 	void turnleft(int late);
 private:
-	int b;
-	int x;
-	int y;
-	int i;
-	int j;
-	int k;
-	int up;
-	int t;
-	int late;
-	int down;
-	int slep;
-	int turn1;
-	int steps;
-	int rightsteps;
-	int leftsteps;
+    Servo _hip1;
+	Servo _knee1;
+	Servo _hip2;
+	Servo _knee2;
+	Servo _hip3;
+	Servo _knee3;
+	Servo _hip4;
+	Servo _knee4;
+	
 };
 #endif 
