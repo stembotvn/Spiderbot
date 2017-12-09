@@ -16,7 +16,10 @@ int i;
 int j;
 int k;
 int up;
+int t;
+int late;
 int down;
+int slep;
 int turn1;
 int steps;
 int rightsteps;
@@ -29,11 +32,9 @@ void setup()
   hip1.attach(4);
   knee1.attach(5);
   hip2.attach(6);    
-  hip1.write(90);
   knee2.attach(7);
   hip3.attach(8);
   knee3.attach(9);
-  hip4.attach(10);
   hip4.attach(10);
   knee4.attach(11);
   
@@ -45,12 +46,87 @@ void setup()
   hip4.write(90);
   knee4.write(90);
 }
-void idle()
+//void idle()
+//{
+//  delay(late);
+//}
+///////////////////////////////
+void standup(int t)
 {
-  delay(80);
+  hip1.write(110);
+  hip2.write(70);
+  hip3.write(70);
+  hip4.write(110);
+  delay(100);
+  for(up = 170; up > 90; up--)
+  {
+    knee1.write(up);
+    knee3.write(up);
+    knee2.write(up);
+    knee4.write(up);
+    delay(t);
+  }
 }
 //////////////////////////////////////
-void start()
+void laydown(int t)
+{
+  hip1.write(110);
+  hip2.write(70);
+  hip3.write(70);
+  hip4.write(110);
+  delay(100);
+  for(down = 90; down > 0; down--)
+  {
+    knee1.write(down);
+    knee3.write(down);
+    knee2.write(down);
+    knee4.write(down);
+    delay(t);
+  }
+}
+/////////////////////////////////////
+void sleep(int t)
+{
+  hip1.write(110);
+  hip2.write(70);
+  hip3.write(70);
+  hip4.write(110);
+  delay(100);
+  for(slep = 90; slep < 180; slep++)
+  {
+    knee1.write(slep);
+    knee3.write(slep);
+    knee2.write(slep);
+    knee4.write(slep);
+    delay(t);
+  }
+}
+//////////////////////////////////////
+void stand1()
+{
+  hip1.write(90);
+  knee1.write(110);
+  hip2.write(90);
+  knee2.write(110);
+  hip3.write(90);
+  knee3.write(110);
+  hip4.write(90);
+  knee4.write(110); 
+}
+/////////////////////////////////////
+void stand2()
+{
+  hip1.write(110);
+  knee1.write(90);
+  hip2.write(70);
+  knee2.write(90);
+  hip3.write(70);
+  knee3.write(90);
+  hip4.write(110);
+  knee4.write(90); 
+}
+//////////////////////////////////////
+void start(int t)
 {
   hip1.write(160);
   knee1.write(0);
@@ -67,7 +143,7 @@ void start()
     hip2.write(turn1);
     hip3.write(turn1);
     hip4.write(turn1);
-    delay(10);
+    delay(t);
   }
   delay(500);
   for(turn1 = 20; turn1 <160; turn1++)
@@ -76,35 +152,35 @@ void start()
     hip2.write(turn1);
     hip3.write(turn1);
     hip4.write(turn1);
-    delay(10);
+    delay(t);
   }
   delay(400);
 }
 ////////////////////////////////////
-void hello()
+void hello(int t)
 {
-  hip1.write(110);
-  hip2.write(70);
-  hip3.write(70);
-  hip4.write(110);
+  hip1.write(120);
+  hip2.write(60);
+  hip3.write(60);
+  hip4.write(120);
   knee1.write(90);
   knee3.write(90);
   knee2.write(90);
   knee4.write(90);
   delay(500);
   knee1.write(180);
-  idle();
+  delay(late);
   while(i < 3)
   {
     for(x = 180; x > 110; x--)
     {
       knee1.write(x);
-      delay(10); 
+      delay(t); 
     }
     for(x = 110; x < 180; x++)
     {
       knee1.write(x);
-      delay(10); 
+      delay(t); 
     }
     i++;
   }
@@ -115,88 +191,19 @@ void hello()
     for(y = 180; y > 90; y --)
     {
       hip1.write(y);
-      delay(10);
+      delay(t);
     }
     for(y = 90; y <180; y++)
     {
       hip1.write(y);
-      delay(10);
+      delay(t);
     }
     j++;
   }
 }
-void standup()
-{
-  hip1.write(110);
-  hip2.write(70);
-  hip3.write(70);
-  hip4.write(110);
-  delay(100);
-  for(up = 170; up > 90; up--)
-  {
-    knee1.write(up);
-    knee3.write(up);
-    knee2.write(up);
-    knee4.write(up);
-    delay(20);
-  }
-}
-//////////////////////////////////////
-void laydown()
-{
-  hip1.write(110);
-  hip2.write(70);
-  hip3.write(70);
-  hip4.write(110);
-  delay(100);
-  for(down = 90; down > 0; down--)
-  {
-    knee1.write(down);
-    knee3.write(down);
-    knee2.write(down);
-    knee4.write(down);
-    delay(20);
-  }
-}
-///////////////////////////////////////
-void sleep()
-{
-  // hips
-  hip1.write(110);
-  hip2.write(70);
-  hip3.write(70);
-  hip4.write(110);
-  // knees
-  knee1.write(180);
-  knee2.write(180);
-  knee3.write(180);
-  knee4.write(180);
-}
-//////////////////////////////////////
-void stand1()
-{
-  hip1.write(90);
-  knee1.write(110);
-  hip2.write(90);
-  knee2.write(110);
-  hip3.write(90);
-  knee3.write(110);
-  hip4.write(90);
-  knee4.write(110); 
-}
-void stand2()
-{
-  hip1.write(110);
-  knee1.write(90);
-  hip2.write(70);
-  knee2.write(90);
-  hip3.write(70);
-  knee3.write(90);
-  hip4.write(110);
-  knee4.write(90); 
-}
+
 /////////////////////////////////////////////
-void exercise()
+void exercise(int t)
 {
   hip1.write(150);
   hip2.write(30);
@@ -217,7 +224,7 @@ void exercise()
       knee3.write(y);
       knee4.write(y);
       y--;
-      delay(15); 
+      delay(t); 
     }
     for(x = 180; x >0; x--)
     {
@@ -226,151 +233,156 @@ void exercise()
       knee3.write(y);
       knee4.write(y);
       y++;
-      delay(15); 
+      delay(t); 
     }
     k++;
   }
   y = 0;
 }
 //////////////////////////////////////////////
-void forward()
+void forward(int late)
 {
     knee1.write(150);
-    idle();
+    delay(late);
     hip1.write(120);
     
-    idle();
+    delay(late);
     knee1.write(110);
-    idle();
+    delay(late);
     //////////////
     knee4.write(150);
-    idle();
+    delay(late);
     hip4.write(70);      
-    idle();
+    delay(late);
     knee4.write(110);
-    idle();
-    idle();
+    delay(late);
+    delay(late);
     hip1.write(90);
     hip2.write(70);
     hip3.write(70);
     hip4.write(90);
-    idle();
+    delay(late);
     ///////////////////////////////////
     knee2.write(150);
-    idle();
+    delay(late);
     hip2.write(60);
 
-    idle();
+    delay(late);
     knee2.write(110);
-    idle();
+    delay(late);
     //////////////
     knee3.write(150);
-    idle();
+    delay(late);
     hip3.write(110);
-    idle();
+    delay(late);
     knee3.write(110);
-    idle();
-    idle();
+    delay(late);
+    delay(late);
     hip1.write(110);
     hip2.write(90);
     hip3.write(90);
     hip4.write(110);  
 }
-///////////////////////////////////////
-void turnright()
+void backward(int late)
 {
-  knee1.write(150);
-  knee4.write(150);
-  idle();
-  hip1.write(110);
-  hip4.write(110);
-  hip2.write(70);
-  hip3.write(70);
-  idle();
-  knee1.write(90);
-  knee4.write(90);
-  idle();
-  ///////////////////////////
-  knee2.write(150);
-  knee3.write(150);
-  idle();
-  hip1.write(160);
-  hip4.write(160);
-  hip2.write(20);
-  hip3.write(20);
-  idle();
-  knee2.write(90);
-  knee3.write(90);
-  idle();
+    knee4.write(150);
+    delay(late);
+    hip4.write(120);
+    
+    delay(late);
+    knee4.write(110);
+    delay(late);
+    //////////////
+    knee1.write(150);
+    delay(late);
+    hip1.write(70);      
+    delay(late);
+    knee1.write(110);
+    delay(late);
+    delay(late);
+    hip4.write(90);
+    hip3.write(70);
+    hip2.write(70);
+    hip1.write(90);
+    delay(late);
+    ///////////////////////////////////
+    knee3.write(150);
+    delay(late);
+    hip3.write(60);
+
+    delay(late);
+    knee3.write(110);
+    delay(late);
+    //////////////
+    knee2.write(150);
+    delay(late);
+    hip2.write(110);
+    delay(late);
+    knee2.write(110);
+    delay(late);
+    delay(late);
+    hip4.write(110);
+    hip3.write(90);
+    hip2.write(90);
+    hip1.write(110);  
 }
-void turnleft()
+///////////////////////////////////////
+void turnright(int late)
+{
+  knee1.write(150);
+  knee4.write(150);
+  delay(late);
+  hip1.write(110);
+  hip4.write(110);
+  hip2.write(70);
+  hip3.write(70);
+  delay(late);
+  knee1.write(90);
+  knee4.write(90);
+  delay(late);
+  ///////////////////////////
+  knee2.write(150);
+  knee3.write(150);
+  delay(late);
+  hip1.write(160);
+  hip4.write(160);
+  hip2.write(20);
+  hip3.write(20);
+  delay(late);
+  knee2.write(90);
+  knee3.write(90);
+  delay(late);
+}
+void turnleft(int late)
 {
   knee2.write(150);
   knee3.write(150);
-  idle();
+  delay(late);
   hip2.write(70);
   hip3.write(70);
   hip1.write(110);
   hip4.write(110);
-  idle();
+  delay(late);
   knee2.write(90);
   knee3.write(90);
-  idle();
+  delay(late);
   ///////////////////////////
   knee1.write(150);
   knee4.write(150);
-  idle();
+  delay(late);
   hip2.write(20);
   hip3.write(20);
   hip1.write(160);
   hip4.write(160);
-  idle();
+  delay(late);
   knee1.write(90);
   knee4.write(90);
-  idle();
+  delay(late);
 }
 ///////////////////////////////////////
 void loop()
 {
+    forward(70);
   
-  standup();
-  delay(1000);
-  /////////
-  hello();
-  delay(500);
-  /////////
-  exercise();
-  delay(500);
-  ////////
-  laydown();
-  delay(500);
-  while(steps < 2)
-  {
-    start();  
-    steps++;
-  }
-  delay(1000);
-  //////////
-  stand2();
-  delay(1000);
-  while(steps < 5)
-  {
-    turnleft();
-    steps ++;
-  }
-  stand2();
-  delay(1000);
-  while(steps > 2)
-  {
-    turnright();
-    steps--;
-  }
-  /////////////
-  stand1();
-  delay(2000);
-  while(1)
-  {
-     forward();
-  }
 }
 
