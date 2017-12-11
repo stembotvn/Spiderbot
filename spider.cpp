@@ -1,4 +1,5 @@
 #include "spider.h"
+#include "IRremote.h"
 
 spider::spider()
 {
@@ -15,7 +16,6 @@ void spider::init()
   _knee3.attach(knee3_pin);
   _hip4.attach(hip4_pin);
   _knee4.attach(knee4_pin);
-  //  x = 0;
 }
 void spider::standUp(int t)
 {

@@ -7,6 +7,8 @@ http://stembot.vn
 #ifndef spider_h
 #define spider_h
 
+
+
 #if ARDUINO >= 100
   #include "Arduino.h"
 #else
@@ -23,7 +25,25 @@ http://stembot.vn
 #define knee4_pin	9
 #include <Servo.h>
 
-
+#define receiverPin A0
+// Define IR Remote Button Codes
+#define irUp  16736925
+#define irDown 16754775
+#define irRight 16761405
+#define irLeft 16720605
+#define irOK 1671244
+#define ir1 16738455
+#define ir2 16750695
+#define ir3 16756815
+#define ir4 16724175
+#define ir5 16718055
+#define ir6 16743045
+#define ir7 16716015
+#define ir8 16726215
+#define ir9 16734885
+#define ir0 16730805
+#define irStar 16728765
+#define irPound 16732845
 
 class spider
 {
@@ -55,4 +75,5 @@ private:
 	Servo _knee4;
 	
 };
+
 #endif 

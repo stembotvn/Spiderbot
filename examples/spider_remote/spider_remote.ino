@@ -1,26 +1,5 @@
-#include "spider.h"
+#include <spider.h>
 #include "IRremote.h"
-
-#define receiverPin A0
-
-// Define IR Remote Button Codes
-#define irUp  16736925
-#define irDown 16754775
-#define irRight 16761405
-#define irLeft 16720605
-#define irOK 16712445
-#define ir1 16738455
-#define ir2 16750695
-#define ir3 16756815
-#define ir4 16724175
-#define ir5 16718055
-#define ir6 16743045
-#define ir7 16716015
-#define ir8 16726215
-#define ir9 16734885
-#define ir0 16730805
-#define irStar 16728765
-#define irPound 16732845
 
 spider robot;
 IRrecv irrecv(receiverPin);
@@ -34,6 +13,16 @@ void setup()
   irrecv.enableIRIn();
 }
 void ReadRemote()
+{
+  if (irrecv.decode(&results)) // nếu nhận được tín hiệu
+  {
+    control();
+    delay(200);
+    irrecv.resume(); // nhận giá trị tiếp theo
+  }
+}
+///////////////////////////
+void control()
 {
   switch(results.value)
   {
@@ -97,17 +86,10 @@ void ReadRemote()
     case irPound: //// #
       
       break;
-  }
+  } 
 }
 void loop()
 {
-  if (irrecv.decode(&results)) // nếu nhận được tín hiệu
-  {
-    Serial.println(results.value, HEX); // in ra Serial Monitor
-    ReadRemote();
-    delay(200);
-    irrecv.resume(); // nhận giá trị tiếp theo
-  }
-  
+  ReadRemote();
 }
 
