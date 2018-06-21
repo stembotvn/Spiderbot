@@ -39,7 +39,6 @@ void control()
         robot.backward(70);
         count++;
       }
-      robot.backward(70);
       break;
     case irLeft: //// trái
       robot.turnleft(70);
