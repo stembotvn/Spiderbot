@@ -353,3 +353,193 @@ void spider::turnleft(int late)
   delay(late);
 }
 ////
+void spider::processCommand()
+{
+  int t;
+  if( !strncmp(_buffer,"standUp",7))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    standUp(t);
+  }
+  /////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"layDown",7))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    layDown(t);
+  }
+  /////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"sleep",5))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    sleep(t);
+  }
+
+ /////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"stand1",6))
+  {
+    stand1();
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"stand2",6))
+  {
+    stand2();
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"stand3",6))
+  {
+    stand3();
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"start",5))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    start(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"hello",5))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    hello(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"exercise",8))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    exercise(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"forward",7))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    forward(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"backward",8))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    backward(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"right",5))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    turnright(t);
+  }
+  ////////////////////////////////////////////////
+  else if( !strncmp(_buffer,"left",4))
+  {
+    char *ptr=_buffer;
+    while(ptr && ptr<_buffer+_sofar)
+    {
+      ptr=strchr(ptr,' ')+1;
+      switch(*ptr)
+      {
+        case 'T': t=atof(ptr+1); break;
+        default: ptr=0; break;
+      }
+    }
+    turnleft(t);
+  }
+}
+void spider::listenToSerial()
+{
+  while(Serial.available() > 0)
+  {
+    _buffer[_sofar++]=Serial.read();
+    if(_buffer[_sofar-1]==';') break;  // in case there are multiple instructions
+  }
+  // if we hit a semi-colon, assume end of instruction.
+  if(_sofar>0 && _buffer[_sofar-1]==';')
+  {
+    _buffer[_sofar]=0;
+    // echo confirmation
+    Serial.println(_buffer);
+    // do something with the command
+    processCommand();
+    // reset the buffer
+    _sofar=0;
+    // echo completion
+    Serial.print(F("> "));
+  }
+}

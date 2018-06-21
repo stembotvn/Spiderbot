@@ -8,6 +8,7 @@ http://stembot.vn
 #define spider_h
 
 
+#include <Servo.h>
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -23,7 +24,6 @@ http://stembot.vn
 #define knee3_pin	7
 #define hip4_pin	8
 #define knee4_pin	9
-#include <Servo.h>
 
 #define receiverPin A0
 // Define IR Remote Button Codes
@@ -64,6 +64,8 @@ public:
 	void backward(int late);
 	void turnright(int late);
 	void turnleft(int late);
+	void processCommand();
+	void listenToSerial();
 private:
     Servo _hip1;
 	Servo _knee1;
@@ -73,6 +75,8 @@ private:
 	Servo _knee3;
 	Servo _hip4;
 	Servo _knee4;
+	char _buffer[64];
+	int _sofar;
 	
 };
 
