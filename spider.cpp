@@ -19,96 +19,99 @@ void spider::init()
 }
 void spider::standUp(int t)
 {
-	_hip1.write(110);
-	_hip2.write(70);
- 	_hip3.write(70);
-	_hip4.write(110);
+	_hip1.write(70);
+	_hip2.write(110);
+ 	_hip3.write(110);
+	_hip4.write(70);
 	delay(100);
-	for(int up = 170; up > 90; up--)
+	for(int up = 180; up > 110; up--)
 	{
-    _knee1.write(up);
+    _knee1.write(180 - up);
     _knee3.write(up);
     _knee2.write(up);
-    _knee4.write(up);
+    _knee4.write(180 - up);
     delay(t);
 	}
 }
-void spider::layDown(int t)
+void spider::sleep(int t)
 {
-	_hip1.write(110);
-	_hip2.write(70);
-	_hip3.write(70);
-	_hip4.write(110);
+	_hip1.write(70);
+	_hip2.write(110);
+	_hip3.write(110);
+	_hip4.write(70);
   delay(100);
   for(int down = 90; down > 0; down--)
   {
-    _knee1.write(down);
+    _knee1.write(180 - down);
     _knee3.write(down);
     _knee2.write(down);
-    _knee4.write(down);
+    _knee4.write(180 - down);
     delay(t);
   }
 }
-void spider::sleep(int t)
+void spider::layDown(int t)
 {
-	_hip1.write(110);
-  _hip2.write(70);
-  _hip3.write(70);
-  _hip4.write(110);
+	_hip1.write(70);
+  _hip2.write(110);
+  _hip3.write(110);
+  _hip4.write(70);
   delay(100);
   for(int slep = 90; slep < 180; slep++)
   {
-    _knee1.write(slep);
+    _knee1.write(180 - slep);
     _knee3.write(slep);
     _knee2.write(slep);
-    _knee4.write(slep);
+    _knee4.write(180 - slep);
     delay(t);
   }
 }
 void spider::stand1()
 {
 	_hip1.write(90);
-  _knee1.write(110);
   _hip2.write(90);
-  _knee2.write(110);
   _hip3.write(90);
-  _knee3.write(110);
   _hip4.write(90);
-  _knee4.write(110); 
+
+  _knee1.write(70);
+  _knee2.write(110);
+  _knee3.write(110);
+  _knee4.write(70); 
 }
 void spider::stand2()
 {
-	_hip1.write(110);
-  _knee1.write(90);
-  _hip2.write(70);
-  _knee2.write(90);
-  _hip3.write(70);
-  _knee3.write(90);
-  _hip4.write(110);
-  _knee4.write(90); 
+	_hip1.write(70);
+  _hip2.write(110);
+  _hip3.write(110);
+  _hip4.write(70);
+
+  _knee1.write(70);
+  _knee2.write(110);
+  _knee3.write(110);
+  _knee4.write(70); 
 }
 void spider::stand3()
 {
-	_hip1.write(160);
+	_hip1.write(90);
+  _hip2.write(90);
+  _hip3.write(90);
+  _hip4.write(90);
+
   _knee1.write(90);
-  _hip2.write(20);
   _knee2.write(90);
-  _hip3.write(20);
   _knee3.write(90);
-  _hip4.write(160);
   _knee4.write(90); 
 }
 void spider::start(int t)
 {
   int turn1;
 	_hip1.write(160);
-  _knee1.write(0);
+  _knee1.write(170);
   _hip2.write(160);
-  _knee2.write(0);
+  _knee2.write(10);
   _hip3.write(160);
-  _knee3.write(0);
+  _knee3.write(10);
   _hip4.write(160);
-  _knee4.write(0);
+  _knee4.write(170);
   delay(100);
   for( turn1 = 160; turn1 >20; turn1--)
   {
@@ -133,25 +136,25 @@ void spider::hello(int t)
   int i = 0;
   int j = 0;
   int x,y;
-	_hip1.write(120);
-  _hip2.write(60);
-  _hip3.write(60);
-  _hip4.write(120);
+	_hip1.write(50);
+  _hip2.write(150);
+  _hip3.write(110);
+  _hip4.write(50);
   _knee1.write(90);
   _knee3.write(90);
   _knee2.write(90);
   _knee4.write(90);
   delay(500);
-  _knee1.write(180);
+  _knee1.write(10);
   delay(100);
-  while(i < 3)
+  while(i < 2)
   {
-    for(x = 180; x > 110; x--)
+    for(x = 0; x < 60; x++)
     {
       _knee1.write(x);
       delay(t); 
     }
-    for(x = 110; x < 180; x++)
+    for(x = 60; x > 0; x--)
     {
       _knee1.write(x);
       delay(t); 
@@ -159,15 +162,15 @@ void spider::hello(int t)
     i++;
   }
   delay(100);
-  _knee1.write(180);
+  _knee1.write(10);
   while(j < 2)
   {
-    for(y = 180; y > 90; y --)
+    for(y = 30; y < 80; y++)
     {
       _hip1.write(y);
       delay(t);
     }
-    for(y = 90; y <180; y++)
+    for(y = 80; y > 30; y--)
     {
       _hip1.write(y);
       delay(t);
@@ -180,10 +183,10 @@ void spider::exercise(int t)
 {   
   int k = 0;
   int x,y; 
-	_hip1.write(150);
-  _hip2.write(30);
-  _hip3.write(30);
-  _hip4.write(150);
+	_hip1.write(90);
+  _hip2.write(90);
+  _hip3.write(90);
+  _hip4.write(90);
   _knee1.write(90);
   _knee2.write(90);
   _knee3.write(90);
@@ -213,114 +216,101 @@ void spider::exercise(int t)
     k++;
   }
   y = 0;
-} 
+}
+
 void spider::forward(int late)
 {
-	_knee1.write(150);
+  _knee1.write(40);
   delay(late);
-  _hip1.write(120);
+  _hip1.write(40);//----1
+  delay(late);
+  _knee1.write(90);
 
-  delay(late);
-  _knee1.write(110);
-  delay(late);
-  //////////////
-  _knee4.write(150);
-  delay(late);
-  _hip4.write(70);      
-  delay(late);
-  _knee4.write(110);
-  delay(late);
-  delay(late);
-  _hip1.write(90);
-  _hip2.write(70);
-  _hip3.write(70);
-  _hip4.write(90);
-  delay(late);
-  ///////////////////////////////////
-  _knee2.write(150);
-  delay(late);
-  _hip2.write(50);
+  _hip2.write(60);//----
 
+  _knee4.write(40);
   delay(late);
-  _knee2.write(110);
+  _hip4.write(140);//----4
   delay(late);
-  //////////////
-  _knee3.write(150);
+  _knee4.write(90);
+
+  _hip4.write(60);//----
+
+  _knee2.write(140);
   delay(late);
-  _hip3.write(110);
+  _hip2.write(140);//----2
   delay(late);
-  _knee3.write(110);
+  _knee2.write(90);
+
+  _hip1.write(120);//----
+
+  _knee3.write(140);
   delay(late);
+  _hip3.write(40);//----3
   delay(late);
-  _hip1.write(110);
-  _hip2.write(90);
-  _hip3.write(90);
-  _hip4.write(110); 
+  _knee3.write(90);
+
+  _hip3.write(120);//----
+
 }
+
 void spider::backward(int late)
 {
-	_knee4.write(150);
+  _knee1.write(40);
   delay(late);
-  _hip4.write(120);
-    
+  _hip1.write(140);//----4
   delay(late);
-  _knee4.write(110);
-  delay(late);
-  //////////////
-  _knee1.write(150);
-  delay(late);
-  _hip1.write(70);      
-  delay(late);
-  _knee1.write(110);
-  delay(late);
-  delay(late);
-  _hip4.write(90);
-  _hip3.write(70);
-  _hip2.write(70);
-  _hip1.write(90);
-  delay(late);
-  ///////////////////////////////////
-   _knee3.write(150);
-  delay(late);
-  _hip3.write(50);
+  _knee1.write(90);
 
+  _hip2.write(120);//----
+
+  _knee4.write(40);
   delay(late);
-  _knee3.write(110);
+  _hip4.write(40);//----1
   delay(late);
-  //////////////
-  _knee2.write(150);
+  _knee4.write(90);
+
+  _hip4.write(120);//----
+
+  _knee2.write(140);
   delay(late);
-  _hip2.write(110);
+  _hip2.write(40);//----3
   delay(late);
-  _knee2.write(110);
+  _knee2.write(90);
+
+  _hip1.write(60);//----
+
+  _knee3.write(140);
   delay(late);
+  _hip3.write(140);//----2
   delay(late);
-  _hip4.write(110);
-  _hip3.write(90);
-  _hip2.write(90);
-  _hip1.write(110);
+  _knee3.write(90);
+
+  _hip3.write(60);//----
+
 }
+
 void spider::turnright(int late)
 {
-	_knee1.write(150);
-  _knee4.write(150);
+	_knee1.write(40);
+  _knee4.write(40);
   delay(late);
-  _hip1.write(110);
-  _hip4.write(110);
-  _hip2.write(70);
-  _hip3.write(70);
+  _hip1.write(60);
+  _hip4.write(60);
+  _hip2.write(120);
+  _hip3.write(120);
   delay(late);
   _knee1.write(90);
   _knee4.write(90);
   delay(late);
   ///////////////////////////
-  _knee2.write(150);
-  _knee3.write(150);
+  _knee2.write(140);
+  _knee3.write(140);
   delay(late);
-  _hip1.write(160);
-  _hip4.write(160);
-  _hip2.write(20);
-  _hip3.write(20);
+  _hip1.write(120);
+  _hip4.write(120);
+  _hip2.write(60);
+  _hip3.write(60);
   delay(late);
   _knee2.write(90);
   _knee3.write(90);
@@ -328,25 +318,25 @@ void spider::turnright(int late)
 }
 void spider::turnleft(int late)
 {
-	_knee2.write(150);
-  _knee3.write(150);
+	_knee2.write(140);
+  _knee3.write(140);
   delay(late);
-  _hip2.write(70);
-  _hip3.write(70);
-  _hip1.write(110);
-  _hip4.write(110);
+  _hip2.write(120);
+  _hip3.write(120);
+  _hip1.write(60);
+  _hip4.write(60);
   delay(late);
   _knee2.write(90);
   _knee3.write(90);
   delay(late);
   ///////////////////////////
-  _knee1.write(150);
-  _knee4.write(150);
+  _knee1.write(40);
+  _knee4.write(40);
   delay(late);
-  _hip2.write(20);
-  _hip3.write(20);
-  _hip1.write(160);
-  _hip4.write(160);
+  _hip2.write(60);
+  _hip3.write(60);
+  _hip1.write(120);
+  _hip4.write(120);
   delay(late);
   _knee1.write(90);
   _knee4.write(90);

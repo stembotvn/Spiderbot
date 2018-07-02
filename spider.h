@@ -3,7 +3,14 @@ Class for Stembot platform
 an open source STEM robotics for kids
 http://stembot.vn
 */
+/*
+			   o o
+		--1--=======--2--
+			 =======
+			 =======
+		--3--=======--4--
 
+*/
 #ifndef spider_h
 #define spider_h
 
