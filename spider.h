@@ -14,8 +14,8 @@ http://stembot.vn
 #ifndef spider_h
 #define spider_h
 
-
 #include <Servo.h>
+#include "IRremote.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -55,7 +55,8 @@ http://stembot.vn
 class spider
 {
 public:
-	spider();
+	spider(): irrecv(receiverPin), results()
+	{}
 
 	void init();
 	void standUp(int t);
@@ -73,6 +74,9 @@ public:
 	void turnleft(int late);
 	void processCommand();
 	void listenToSerial();
+	void control();
+	void ReadRemote();
+	void initRemote();
 private:
     Servo _hip1;
 	Servo _knee1;
@@ -84,7 +88,10 @@ private:
 	Servo _knee4;
 	char _buffer[64];
 	int _sofar;
-	
+	int _count;
+
+	IRrecv irrecv;
+	decode_results results;
 };
 
 #endif 

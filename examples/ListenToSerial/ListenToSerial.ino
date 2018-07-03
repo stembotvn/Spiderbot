@@ -10,6 +10,5 @@ void setup(){
 }
 
 void loop(){
-    //robot.forward(100);
     robot.listenToSerial();
 }

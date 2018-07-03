@@ -1,10 +1,6 @@
 #include "spider.h"
 #include "IRremote.h"
 
-spider::spider()
-{
-
-}
 
 void spider::init()
 {
@@ -256,35 +252,37 @@ void spider::forward(int late)
 
 void spider::backward(int late)
 {
-  _knee1.write(40);
-  delay(late);
-  _hip1.write(140);//----4
-  delay(late);
-  _knee1.write(90);
-
-  _hip2.write(120);//----
 
   _knee4.write(40);
   delay(late);
-  _hip4.write(40);//----1
+  _hip4.write(40);//----4
   delay(late);
+
   _knee4.write(90);
+
+  _hip2.write(120);//----
+
+  _knee1.write(40);
+  delay(late);
+  _hip1.write(140);//----1
+  delay(late);
+  _knee1.write(90);
 
   _hip4.write(120);//----
 
-  _knee2.write(140);
+  _knee3.write(140);
   delay(late);
-  _hip2.write(40);//----3
+  _hip3.write(140);//----3
   delay(late);
-  _knee2.write(90);
+  _knee3.write(90);
 
   _hip1.write(60);//----
 
-  _knee3.write(140);
+  _knee2.write(140);
   delay(late);
-  _hip3.write(140);//----2
+  _hip2.write(40);//----2
   delay(late);
-  _knee3.write(90);
+  _knee2.write(90);
 
   _hip3.write(60);//----
 
@@ -532,4 +530,83 @@ void spider::listenToSerial()
     // echo completion
     Serial.print(F("> "));
   }
+}
+
+void spider::control()
+{
+  switch(results.value)
+  {
+    case irUp: //// tiến
+      for(_count = 0; _count < 4; _count++)
+      {
+        forward(100);
+        _count++;
+      }
+      break;
+    case irDown: //// lùi
+      for(_count = 0; _count < 4; _count++)
+      {
+        backward(100);
+        _count++;
+      }
+      break;
+    case irLeft: //// trái
+      turnleft(100);
+      break;
+    case irRight: //// phải
+      turnright(100);
+      break;
+    case irOK: //// ok
+      stand2();
+      break;
+    case ir1: //// 1
+      standUp(20);
+      break;
+    case ir2: //// 2
+      sleep(20);      
+      break;
+    case ir3: //// 3
+      stand1();      
+      break;
+    case ir4: //// 4
+      hello(10);
+      break;
+    case ir5: //// 5
+      start(20);
+      break;
+    case ir6: //// 6
+      exercise(20);
+      break;
+    case ir7: //// 7
+      layDown(20);
+      break;
+    case ir8: //// 8
+      stand3();
+      break;
+    case ir9: //// 9
+      
+      break;
+    case ir0: //// 0
+      
+      break;
+    case irStar: //// *
+      
+      break;
+    case irPound: //// #
+      
+      break;
+  } 
+}
+void spider::ReadRemote()
+{
+  if (irrecv.decode(&results)) // nếu nhận được tín hiệu
+  {
+    control();
+    delay(200);
+    irrecv.resume(); // nhận giá trị tiếp theo
+  }
+}
+void spider::initRemote()
+{
+  irrecv.enableIRIn();
 }
