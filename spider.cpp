@@ -2,6 +2,7 @@
 #include "IRremote.h"
 
 
+
 void spider::init()
 {
   _hip1.attach(hip1_pin);

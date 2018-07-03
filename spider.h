@@ -38,7 +38,7 @@ http://stembot.vn
 #define irDown 16754775
 #define irRight 16761405
 #define irLeft 16720605
-#define irOK 1671244
+#define irOK 16712445
 #define ir1 16738455
 #define ir2 16750695
 #define ir3 16756815
@@ -55,7 +55,7 @@ http://stembot.vn
 class spider
 {
 public:
-	spider(): irrecv(receiverPin), results()
+	spider()
 	{}
 
 	void init();
@@ -90,7 +90,7 @@ private:
 	int _sofar;
 	int _count;
 
-	IRrecv irrecv;
+	IRrecv irrecv= IRrecv(receiverPin);
 	decode_results results;
 };
 
