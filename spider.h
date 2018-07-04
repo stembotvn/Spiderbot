@@ -80,7 +80,7 @@ public:
 	void initRemote();
 	void Scratch_command_processing();
 private:
-    Servo _hip1;
+  Servo _hip1;
 	Servo _knee1;
 	Servo _hip2;
 	Servo _knee2;
@@ -88,12 +88,13 @@ private:
 	Servo _knee3;
 	Servo _hip4;
 	Servo _knee4;
-    Servo servos[8];  
+  Servo servos[8];  
 
-	int _sofar;
-	int _count;
-	bool  isAvailable = false;
-	char serialRead;
+    char _buffer[64];
+	  int _sofar;
+	  int _count;
+	  bool  isAvailable = false;
+	  char serialRead;
     bool isStart=false;
     unsigned char prevc=0;
     int index = 0;
@@ -101,13 +102,16 @@ private:
     char buffer[52];
     uint8_t command_index = 0;
     float angleServo = 90.0;
-int servo_pins[8]={0,0,0,0,0,0,0,0};
-double lastTime = 0.0;
-double currentTime = 0.0;
+    int servo_pins[8]={0,0,0,0,0,0,0,0};
+    double lastTime = 0.0;
+    double currentTime = 0.0;
+    int analogs[8]={A0,A1,A2,A3,A4,A5,A6,A7};
+     ///////////////////////////
     union{
     byte byteVal[4];
     float floatVal;
     long longVal;
+   
 }val;
 
 union{

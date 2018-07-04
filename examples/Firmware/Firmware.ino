@@ -8,7 +8,7 @@ void setup()
 {
   robot.init();
   robot.initRemote();
-  Serial.begin(9600);
+  Serial.begin(115200);
   robot.stand1();
 }
 ///////////////////////////
