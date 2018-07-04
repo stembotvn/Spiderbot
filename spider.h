@@ -89,7 +89,7 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];  
-
+    bool _readDone = false; 
     char _buffer[64];
 	  int _sofar;
 	  int _count;

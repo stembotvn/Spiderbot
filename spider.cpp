@@ -513,19 +513,21 @@ void spider::processCommand()
 }
 void spider::listenToSerial()
 {
-  while(Serial.available() > 0)
+  if(Serial.available() > 0)
   {
     _buffer[_sofar++]=Serial.read();
-    if(_buffer[_sofar-1]==';') break;  // in case there are multiple instructions
+    if(_buffer[_sofar-1]==';') _readDone = true;
+  
   }
   // if we hit a semi-colon, assume end of instruction.
-  if(_sofar>0 && _buffer[_sofar-1]==';')
+  if(_readDone)
   {
     _buffer[_sofar]=0;
     // echo confirmation
-    Serial.println(_buffer);
+   // Serial.println(_buffer);
     // do something with the command
     processCommand();
+    _readDone = false;
     // reset the buffer
     _sofar=0;
     // echo completion
