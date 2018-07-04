@@ -11,4 +11,5 @@ void setup(){
 
 void loop(){
     robot.listenToSerial();
+    robot.Scratch_command_processing();
 }

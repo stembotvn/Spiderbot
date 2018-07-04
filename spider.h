@@ -88,18 +88,22 @@ private:
 	Servo _knee3;
 	Servo _hip4;
 	Servo _knee4;
+    Servo servos[8];  
 
 	int _sofar;
 	int _count;
 	bool  isAvailable = false;
 	char serialRead;
-    bool isStart==false;
+    bool isStart=false;
     unsigned char prevc=0;
     int index = 0;
     int dataLen;
     char buffer[52];
     uint8_t command_index = 0;
-    
+    float angleServo = 90.0;
+int servo_pins[8]={0,0,0,0,0,0,0,0};
+double lastTime = 0.0;
+double currentTime = 0.0;
     union{
     byte byteVal[4];
     float floatVal;
@@ -140,7 +144,7 @@ unsigned char readBuffer(int index){
 void writeBuffer(int index,unsigned char c){
    buffer[index]=c;
  } 
-}
+
 /////////////////////////////////
 void callOK(){
     writeSerial(0xff);
@@ -200,29 +204,33 @@ long readLong(int idx){
   val.byteVal[3] = readBuffer(idx+3);
   return val.longVal;
 }
+////
+void playTone(int pin, int hz, int ms) {
+	 int buzzer_pin = pin;
+  int period = 1000000L / hz;
+  int pulse = period / 2;
+  pinMode(buzzer_pin, OUTPUT);
+  for (long i = 0; i < ms * 1000L; i += period) 
+  {
+    digitalWrite(buzzer_pin, HIGH);
+    delayMicroseconds(pulse);
+    digitalWrite(buzzer_pin, LOW);
+    delayMicroseconds(pulse);
+   }
+}
+void noTone(int pin){
+
+  int buzzer_pin = pin;
+  pinMode(buzzer_pin, OUTPUT);
+  digitalWrite(buzzer_pin, LOW);
+}
+///
 void runModule(int device){
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-  int port = Buffer[6];
+  int port = buffer[6];
   int pin = port;
   switch(device){
-   
-   case SERVO:{
-     int slot = readBuffer(7);
-     pin = slot==1?mePort[port].s1:mePort[port].s2;
-     int v = readBuffer(8);
-     Servo sv = servos[searchServoPin(pin)];
-     if(v >= 0 && v <= 180)
-     {
-       if(!sv.attached())
-       {
-         sv.attach(pin);
-       }
-       sv.write(v);
-     }
-   }
-   break;
-
-     case DIGITAL:{
+    case DIGITAL:{
      pinMode(pin,OUTPUT);
      int v = readBuffer(7);
      digitalWrite(pin,v);
@@ -235,13 +243,14 @@ void runModule(int device){
    }
    break;
    case TONE:{
+
      pinMode(pin,OUTPUT);
      int hz = readShort(7);
      int ms = readShort(9);
      if(ms>0){
-       buzzer.tone(pin, hz, ms); 
+       playTone(pin, hz, ms); 
      }else{
-       buzzer.noTone(pin); 
+       noTone(pin); 
      }
    }
    break;
@@ -322,9 +331,8 @@ void readSensor(int device){
      sendFloat((float)currentTime);
    }
    break;
-   
- 
-  }	
+      }	
+   }
 
 
 };
