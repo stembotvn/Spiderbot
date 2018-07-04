@@ -15,7 +15,8 @@ void setup()
 void loop()
 {
   robot.ReadRemote();
-  delay(10);
+  //delay(10);
   robot.listenToSerial();
+  robot.Scratch_command_processing();
 }
 

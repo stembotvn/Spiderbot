@@ -611,3 +611,82 @@ void spider::initRemote()
 {
   irrecv.enableIRIn();
 }
+////
+void spider::Scratch_command_processing()
+{
+   isAvailable = false;
+  if(Serial.available()>0){
+    isAvailable = true;
+    serialRead = Serial.read();
+  }
+  if(isAvailable){
+    unsigned char c = serialRead&0xff;
+    if(c==0x55&&isStart==false){
+     if(prevc==0xff){
+      index=1;
+      isStart = true;
+     }
+    }else{
+      prevc = c;  
+      if(isStart){
+        if(index==2){
+         dataLen = c; 
+        }else if(index>2){
+          dataLen--;
+        }
+      buffer[index]=c;
+      }
+    }
+     index++;
+     if(index>51){
+      index=0; 
+      isStart=false;
+     }
+     if(isStart&&dataLen==0&&index>3){ 
+        isStart = false;
+        parseData(); 
+        index=0;
+     }
+  }
+ }
+
+
+/*
+ff 55 len idx action device port  slot  data a
+0  1  2   3   4      5      6     7     8
+*/
+void spider::parseData()
+{
+  isStart = false;
+  int idx = buffer[3];
+  command_index = (uint8_t)idx;
+  int action = buffer[4];
+  int device = buffer[5];
+  switch(action){
+    case GET:{
+        if(device != ULTRASONIC_SENSOR){
+          writeHead();
+          writeSerial(idx);
+        }
+        readSensor(device);
+        writeEnd();
+     }
+     break;
+     case RUN:{
+       runModule(device);
+       callOK();
+     }
+      break;
+      case RESET:{
+        //reset
+        
+        callOK();
+      }
+     break;
+     case START:{
+        //start
+        callOK();
+      }
+     break;
+  }
+}
