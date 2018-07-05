@@ -39,7 +39,17 @@ Define of ID function for Scratch interface
 #define LEDMATRIX 41
 #define TIMER 50
 #define TOUCH_SENSOR 51
+
 #define RUN_SPIDER 60
+#define SLEEP 61
+#define STANDUP 62
+#define LAYDOWN 63
+#define DANCE 64
+#define HELLO 65
+#define EXERCISE 66
+#define STAND1 67
+#define STAND2 68
+#define STAND3 69
 
 #define GET 1
 #define RUN 2

@@ -1,8 +1,6 @@
 #include "spider.h"
 #include "IRremote.h"
 
-
-
 void spider::init()
 {
   _hip1.attach(hip1_pin);
@@ -21,7 +19,7 @@ void spider::standUp(int t)
  	_hip3.write(110);
 	_hip4.write(70);
 	delay(100);
-	for(int up = 180; up > 110; up--)
+	for(int up = 180; up > 90; up--)
 	{
     _knee1.write(180 - up);
     _knee3.write(up);
@@ -64,10 +62,10 @@ void spider::layDown(int t)
 }
 void spider::stand1()
 {
-	_hip1.write(90);
-  _hip2.write(90);
-  _hip3.write(90);
-  _hip4.write(90);
+  _hip1.write(70);
+  _hip2.write(110);
+  _hip3.write(110);
+  _hip4.write(70);
 
   _knee1.write(70);
   _knee2.write(110);
@@ -76,10 +74,10 @@ void spider::stand1()
 }
 void spider::stand2()
 {
-	_hip1.write(70);
-  _hip2.write(110);
-  _hip3.write(110);
-  _hip4.write(70);
+	_hip1.write(90);
+  _hip2.write(90);
+  _hip3.write(90);
+  _hip4.write(90);
 
   _knee1.write(70);
   _knee2.write(110);
@@ -342,207 +340,12 @@ void spider::turnleft(int late)
   delay(late);
 }
 ////
-void spider::processCommand()
-{
-  int t;
-  if( !strncmp(_buffer,"standUp",7))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    standUp(t);
-  }
-  /////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"layDown",7))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    layDown(t);
-  }
-  /////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"sleep",5))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    sleep(t);
-  }
-
- /////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"stand1",6))
-  {
-    stand1();
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"stand2",6))
-  {
-    stand2();
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"stand3",6))
-  {
-    stand3();
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"start",5))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    start(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"hello",5))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    hello(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"exercise",8))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    exercise(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"forward",7))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    forward(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"backward",8))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    backward(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"right",5))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    turnright(t);
-  }
-  ////////////////////////////////////////////////
-  else if( !strncmp(_buffer,"left",4))
-  {
-    char *ptr=_buffer;
-    while(ptr && ptr<_buffer+_sofar)
-    {
-      ptr=strchr(ptr,' ')+1;
-      switch(*ptr)
-      {
-        case 'T': t=atof(ptr+1); break;
-        default: ptr=0; break;
-      }
-    }
-    turnleft(t);
-  }
-}
-////
 void spider::readSerial(){
     isAvailable = false;
   if(Serial.available()>0){
     isAvailable = true;
     serialRead = Serial.read();}
 }
-////
-void spider::parse_SpiderCMD()
-{  
-   if(isAvailable){
-    unsigned char c = serialRead&0xff;
-     _buffer[_sofar++]=c;
-    if(_buffer[_sofar-1]==';') _readDone = true;
-  
-  }
-  // if we hit a semi-colon, assume end of instruction.
-  if(_readDone)
-  {
-    _buffer[_sofar]=0;
-    // echo confirmation
-   // Serial.println(_buffer);
-    // do something with the command
-    processCommand();
-    _readDone = false;
-    // reset the buffer
-    _sofar=0;
-    // echo completion
-    Serial.print(F("> "));
-  }
-}
-
 void spider::control()
 {
   switch(results.value)
@@ -699,4 +502,320 @@ void spider::parseData()
       }
      break;
   }
+}
+void spider::writeHead()
+{
+  writeSerial(0xff);
+  writeSerial(0x55);
+}
+void spider::writeEnd()
+{
+  Serial.println(); 
+}
+void spider::writeSerial(unsigned char c)
+{
+  Serial.write(c);
+}
+unsigned char spider::readBuffer(int index)
+{
+  return buffer[index]; 
+}
+void spider::writeBuffer(int index,unsigned char c)
+{
+  buffer[index]=c;
+}
+void spider::callOK()
+{
+  writeSerial(0xff);
+  writeSerial(0x55);
+  writeEnd();
+}
+void spider::sendByte(char c)
+{
+  writeSerial(1);
+  writeSerial(c);
+}
+void spider::sendString(String s)
+{
+  int l = s.length();
+  writeSerial(4);
+  writeSerial(l);
+  for(int i=0;i<l;i++)
+  {
+    writeSerial(s.charAt(i));
+  }
+}
+void spider::sendFloat(float value)
+{
+  writeSerial(0x2);
+  val.floatVal = value;
+  writeSerial(val.byteVal[0]);
+  writeSerial(val.byteVal[1]);
+  writeSerial(val.byteVal[2]);
+  writeSerial(val.byteVal[3]);
+}
+void spider::sendShort(double value)
+{
+  writeSerial(3);
+  valShort.shortVal = value;
+  writeSerial(valShort.byteVal[0]);
+  writeSerial(valShort.byteVal[1]);
+}
+void spider::sendDouble(double value)
+{
+  writeSerial(2);
+  valDouble.doubleVal = value;
+  writeSerial(valDouble.byteVal[0]);
+  writeSerial(valDouble.byteVal[1]);
+  writeSerial(valDouble.byteVal[2]);
+  writeSerial(valDouble.byteVal[3]);
+}
+short spider::readShort(int idx)
+{
+  valShort.byteVal[0] = readBuffer(idx);
+  valShort.byteVal[1] = readBuffer(idx+1);
+  return valShort.shortVal;
+}
+float spider::readFloat(int idx)
+{
+  val.byteVal[0] = readBuffer(idx);
+  val.byteVal[1] = readBuffer(idx+1);
+  val.byteVal[2] = readBuffer(idx+2);
+  val.byteVal[3] = readBuffer(idx+3);
+  return val.floatVal;
+}
+long spider::readLong(int idx)
+{
+  val.byteVal[0] = readBuffer(idx);
+  val.byteVal[1] = readBuffer(idx+1);
+  val.byteVal[2] = readBuffer(idx+2);
+  val.byteVal[3] = readBuffer(idx+3);
+  return val.longVal;
+}
+void spider::playTone(int pin, int hz, int ms)
+{
+  int buzzer_pin = pin;
+  int period = 1000000L / hz;
+  int pulse = period / 2;
+  pinMode(buzzer_pin, OUTPUT);
+  for (long i = 0; i < ms * 1000L; i += period) 
+  {
+    digitalWrite(buzzer_pin, HIGH);
+    delayMicroseconds(pulse);
+    digitalWrite(buzzer_pin, LOW);
+    delayMicroseconds(pulse);
+   }
+}
+void spider::noTone(int pin)
+{
+  int buzzer_pin = pin;
+  pinMode(buzzer_pin, OUTPUT);
+  digitalWrite(buzzer_pin, LOW);
+}
+void spider::runModule(int device)
+{
+  //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+  int port = buffer[6];
+  int pin = port;
+  switch(device)
+  {
+    case DIGITAL:
+    {
+      pinMode(pin,OUTPUT);
+      int v = readBuffer(7);
+      digitalWrite(pin,v);
+    }
+    break;
+    case PWM:
+    {
+      pinMode(pin,OUTPUT);
+      int v = readBuffer(7);
+      analogWrite(pin,v);
+    }
+    break;
+    case TONE:
+    {
+      pinMode(pin,OUTPUT);
+      int hz = readShort(7);
+      int ms = readShort(9);
+      if(ms>0){
+        playTone(pin, hz, ms); 
+      }
+      else
+      {
+        noTone(pin); 
+      }
+    }
+    break;
+    case SERVO_PIN:
+    {
+      int v = readBuffer(7);
+      Servo sv = servos[searchServoPin(pin)]; 
+      if(v >= 0 && v <= 180)
+      {
+        if(!sv.attached())
+        {
+          sv.attach(pin);
+        }
+        sv.write(v);
+      }
+    }
+    break;
+    case TIMER:
+    {
+      lastTime = millis()/1000.0; 
+    }
+    break;
+   /////////////////////////
+    case RUN_SPIDER:
+    {
+      int m = readShort(6);
+      int speed = readShort(8);
+      switch(m)
+      {
+        case 1:
+        {
+          forward(speed);
+          break;
+        }
+        case 2:
+        {
+          backward(speed);
+          break;
+        }
+        case 3:
+        {
+          turnleft(speed);
+          break;
+        }
+        case 4:
+        {
+          turnright(speed);
+          break;
+        }
+      }
+    }
+    break;
+    case SLEEP:
+    {
+      int v = readShort(6);
+      sleep(v);
+    }
+    break;
+    case STANDUP:
+    {
+      int v = readShort(6);
+      standUp(v);
+    }
+    break;
+    case LAYDOWN:
+    {
+      int v = readShort(6);
+      layDown(v);
+    }
+    break;
+    case DANCE:
+    {
+      int v = readShort(6);
+      start(v);
+    }
+    break;
+    case HELLO:
+    {
+      int v = readShort(6);
+      hello(v);
+    }
+    break;
+    case EXERCISE:
+    {
+      int v = readShort(6);
+      exercise(v);
+    }
+    break;
+    case STAND1:
+    {
+      stand1();
+    }
+    break;
+    case STAND2:
+    {
+      stand2();
+    }
+    break;
+    case STAND3:
+    {
+      stand3();
+    }
+    break;
+   ///////////////////////////
+  }
+}
+int spider::searchServoPin(int pin)
+{
+  for(int i=0;i<8;i++)
+  {
+      if(servo_pins[i] == pin)
+      {
+        return i;
+      }
+      if(servo_pins[i]==0)
+      {
+        servo_pins[i] = pin;
+        return i;
+      }
+    }
+    return 0;
+}
+void spider::readSensor(int device)
+{
+  /**************************************************
+      ff 55 len idx action device port slot data a
+      0  1  2   3   4      5      6    7    8
+  ***************************************************/
+  float value=0.0;
+  int port,slot,pin;
+  port = readBuffer(6);
+  pin = port;
+  switch(device)
+  {
+    case  DIGITAL:
+    {
+      pinMode(pin,INPUT);
+      sendFloat(digitalRead(pin));
+    }
+    break;
+    case  ANALOG:
+    {
+      pin = analogs[pin];
+      pinMode(pin,INPUT);
+      sendFloat(analogRead(pin));
+    }
+    break;
+    case  PULSEIN:
+    {
+      int pw = readShort(7);
+      pinMode(pin, INPUT);
+      sendShort(pulseIn(pin,HIGH,pw));
+    }
+    break;
+    case ULTRASONIC_ARDUINO:
+    {
+      int trig = readBuffer(6);
+      int echo = readBuffer(7);
+      pinMode(trig,OUTPUT);
+      digitalWrite(trig,LOW);
+      delayMicroseconds(2);
+      digitalWrite(trig,HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trig,LOW);
+      pinMode(echo, INPUT);
+      sendFloat(pulseIn(echo,HIGH,30000)/58.0);
+    }
+    break;
+    case TIMER:
+    {
+      sendFloat((float)currentTime);
+    }
+    break;
+  } 
 }
