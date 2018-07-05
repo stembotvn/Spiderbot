@@ -276,7 +276,38 @@ void runModule(int device){
     lastTime = millis()/1000.0; 
    }
    break;
+
+   /////////////////////////
+   case RUN_SPIDER:{
+      int m = readShort(6);
+      int speed = readShort(8);
+      switch(m){
+        case 1:
+        {
+          forward(speed);
+          break;
+        }
+        case 2:
+        {
+          backward(speed);
+          break;
+        }
+        case 3:
+        {
+          turnleft(speed);
+          break;
+        }
+        case 4:
+        {
+          turnright(speed);
+          break;
+        }
+      }
+   }
+   break;
+   ///////////////////////////
   }
+
 }
 
 int searchServoPin(int pin){

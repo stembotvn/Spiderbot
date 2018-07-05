@@ -17,7 +17,7 @@ void loop()
   //robot.ReadRemote();
   //delay(10);
   robot.readSerial();
-  robot.parse_SpiderCMD();
+  //robot.parse_SpiderCMD();
   robot.Scratch_command_processing();
 }
 
