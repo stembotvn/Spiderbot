@@ -511,11 +511,19 @@ void spider::processCommand()
     turnleft(t);
   }
 }
-void spider::listenToSerial()
-{
-  if(Serial.available() > 0)
-  {
-    _buffer[_sofar++]=Serial.read();
+////
+void spider::readSerial(){
+    isAvailable = false;
+  if(Serial.available()>0){
+    isAvailable = true;
+    serialRead = Serial.read();}
+}
+////
+void spider::parse_SpiderCMD()
+{  
+   if(isAvailable){
+    unsigned char c = serialRead&0xff;
+     _buffer[_sofar++]=c;
     if(_buffer[_sofar-1]==';') _readDone = true;
   
   }
@@ -616,11 +624,11 @@ void spider::initRemote()
 ////
 void spider::Scratch_command_processing()
 {
-   isAvailable = false;
+ /*  isAvailable = false;
   if(Serial.available()>0){
     isAvailable = true;
     serialRead = Serial.read();
-  }
+  }*/
   if(isAvailable){
     unsigned char c = serialRead&0xff;
     if(c==0x55&&isStart==false){

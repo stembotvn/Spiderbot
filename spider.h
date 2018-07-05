@@ -74,10 +74,11 @@ public:
 	void turnright(int late);
 	void turnleft(int late);
 	void processCommand();
-	void listenToSerial();
+	void parse_SpiderCMD();
 	void control();
 	void ReadRemote();
 	void initRemote();
+	void readSerial();
 	void Scratch_command_processing();
 private:
   Servo _hip1;
