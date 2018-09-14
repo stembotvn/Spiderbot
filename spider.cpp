@@ -1,8 +1,15 @@
 #include "spider.h"
+#include "RF24.h"
+#include "EEPROM.h"
 #include "IRremote.h"
 
 void spider::init()
 {
+  Serial.begin(9600);
+  pinMode(SET, INPUT_PULLUP);
+  pinMode(buzzer, OUTPUT);
+  pinMode(Trig, OUTPUT);
+  pinMode(Echo, INPUT);
   _hip1.attach(hip1_pin);
   _knee1.attach(knee1_pin);
   _hip2.attach(hip2_pin);    
@@ -11,6 +18,66 @@ void spider::init()
   _knee3.attach(knee3_pin);
   _hip4.attach(hip4_pin);
   _knee4.attach(knee4_pin);
+
+  radio.begin();
+  radio.setChannel(108);
+  radio.setDataRate(RF24_1MBPS);
+  radio.setPALevel(RF24_PA_HIGH);
+}
+void spider::initNRF()
+{
+  radio.begin();
+  radio.setChannel(108);
+  radio.setDataRate(RF24_1MBPS);
+  radio.setPALevel(RF24_PA_HIGH);
+  convertAdd();
+}
+void spider::convertAdd()
+{
+  _readAdd = EEPROM.read(0);
+  _AddRandom = (_AddDefault & ~0xFFLL) | _readAdd;
+  radio.openReadingPipe(1,_AddRandom);
+  radio.startListening();
+  Serial.print("Address: ");
+  Serial.print((unsigned long)(_AddRandom >> 32), 16);
+  Serial.println((unsigned long)_AddRandom, 16); 
+  Serial.println("Ready to receive data");
+}
+void spider::setAddress()
+{
+  if(!digitalRead(SET))
+  {
+    Serial.println("Set Address");
+    Serial.println("Wait 5s...");
+    _startTime = millis();
+    while(!digitalRead(SET));
+    _duration = millis() - _startTime;
+    if(_duration > 5000)
+    {
+      radio.openReadingPipe(1,_AddDefault);
+      radio.startListening();
+      Serial.println("Ready to receive new address...");
+      for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
+      {
+        if(radio.available())
+        {
+          radio.read(_Add, sizeof(_Add));
+          _address = _Add[0];
+          EEPROM.write(0,_address);
+          Serial.println("Set address done.");
+          tick(3,1000,200);
+          break;
+        }
+      }
+      convertAdd();
+    }
+    else
+    {
+      Serial.println("No change of address.");
+      tick(1,1000,1000);
+    }
+
+  }
 }
 void spider::standUp(int t)
 {
@@ -338,6 +405,28 @@ void spider::turnleft(int late)
   _knee1.write(90);
   _knee4.write(90);
   delay(late);
+}
+///
+void spider::tone(uint16_t frequency, uint32_t duration)
+{
+  int period = 1000000L / frequency;
+  int pulse = period / 2;
+  for (long i = 0; i < duration * 1000L; i += period)
+  {
+    digitalWrite(buzzer, HIGH);
+    delayMicroseconds(pulse);
+    digitalWrite(buzzer, LOW);
+    delayMicroseconds(pulse);
+  }
+}
+void spider::tick(int n, uint16_t frequency, int times)
+{
+  for(int i=0; i<n; i++)
+  {
+    tone(frequency, times);
+    digitalWrite(buzzer, LOW);
+    delay(times);
+  }
 }
 ////
 void spider::readSerial(){

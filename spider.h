@@ -14,6 +14,9 @@ http://stembot.vn
 #ifndef spider_h
 #define spider_h
 
+#include "RF24.h"
+#include <SPI.h>
+#include <EEPROM.h>
 #include <Servo.h>
 #include "IRremote.h"
 
@@ -25,14 +28,23 @@ http://stembot.vn
 
 #include "Scratch.h"
 
-#define hip1_pin	2
-#define knee1_pin	3
-#define hip2_pin	4
-#define knee2_pin	5
-#define hip3_pin	6
-#define knee3_pin	7
-#define hip4_pin	8
-#define knee4_pin	9
+#define buzzer    2
+#define hip1_pin	3
+#define knee1_pin	4
+#define hip2_pin	5
+#define knee2_pin	6
+#define hip3_pin	7
+#define knee3_pin	8
+#define hip4_pin	9
+#define knee4_pin	10
+
+#define Trig      A0
+#define Echo      A1
+#define CE_PIN    A2
+#define CSN_PIN   A3
+#define SET       A4
+#define LDR1      A6
+#define LDR2      A7
 
 #define receiverPin A0
 // Define IR Remote Button Codes
@@ -60,6 +72,9 @@ public:
 	spider(){}
 
 	void init();
+  void initNRF();
+  void convertAdd();        // Chuyển đổi địa chỉ lưu từ EEPROM
+  void setAddress();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
 	void standUp(int t);
 	void layDown(int t);
 	void sleep(int t);
@@ -73,6 +88,8 @@ public:
 	void backward(int late);
 	void turnright(int late);
 	void turnleft(int late);
+  void tone(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
+  void tick(int n, uint16_t frequency, int times);
 	void control();
 	void ReadRemote();
 	void initRemote();
@@ -88,6 +105,16 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];
+  RF24 radio = RF24(CE_PIN, CSN_PIN);
+
+  const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
+  uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
+  byte _readAdd;
+  byte _address;
+  int _Add[1];
+  long _duration;
+  long _startTime;
+  long _timeout = 10000L;
 
   bool _readDone = false; 
   char _buffer[64];
