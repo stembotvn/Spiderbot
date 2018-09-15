@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include "RF24.h"
 spider Guti;
-RF24 radio(CE_PIN, CSN_PIN);
+//RF24 radio(CE_PIN, CSN_PIN);
 int Data[8]; //Received data array
 bool updated = 0;
 int F;
@@ -59,11 +59,11 @@ void Move()
 }
 void readRadio()
 {
-  if ( radio.available())
+  if ( Guti.radio.available())
   {
-    while(radio.available())
+    while(Guti.radio.available())
     {
-      radio.read( Data, sizeof(Data));
+      Guti.radio.read( Data, sizeof(Data));
       updated = 1;
     }
   }
