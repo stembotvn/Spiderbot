@@ -546,7 +546,7 @@ void spider::Scratch_command_processing()
      }
      if(isStart&&dataLen==0&&index>3){ 
         isStart = false;
-        parseData(); 
+        //parseData(); 
         index=0;
      }
   }
