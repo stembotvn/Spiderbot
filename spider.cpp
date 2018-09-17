@@ -1,7 +1,7 @@
 #include "spider.h"
 #include "RF24.h"
 #include "EEPROM.h"
-#include "IRremote.h"
+//#include "IRremote.h"
 
 void spider::init()
 {
@@ -407,7 +407,7 @@ void spider::turnleft(int late)
   delay(late);
 }
 ///
-void spider::tone(uint16_t frequency, uint32_t duration)
+void spider::tones(uint16_t frequency, uint32_t duration)
 {
   int period = 1000000L / frequency;
   int pulse = period / 2;
@@ -423,7 +423,7 @@ void spider::tick(int n, uint16_t frequency, int times)
 {
   for(int i=0; i<n; i++)
   {
-    tone(frequency, times);
+    tones(frequency, times);
     digitalWrite(buzzer, LOW);
     delay(times);
   }
@@ -434,84 +434,6 @@ void spider::readSerial(){
   if(Serial.available()>0){
     isAvailable = true;
     serialRead = Serial.read();}
-}
-void spider::control()
-{
-  switch(results.value)
-  {
-    case irUp: //// tiến
-      for(_count = 0; _count < 4; _count++)
-      {
-        forward(100);
-        _count++;
-      }
-      break;
-    case irDown: //// lùi
-      for(_count = 0; _count < 4; _count++)
-      {
-        backward(100);
-        _count++;
-      }
-      break;
-    case irLeft: //// trái
-      turnleft(100);
-      break;
-    case irRight: //// phải
-      turnright(100);
-      break;
-    case irOK: //// ok
-      stand2();
-      break;
-    case ir1: //// 1
-      standUp(20);
-      break;
-    case ir2: //// 2
-      sleep(20);      
-      break;
-    case ir3: //// 3
-      stand1();      
-      break;
-    case ir4: //// 4
-      hello(10);
-      break;
-    case ir5: //// 5
-      start(20);
-      break;
-    case ir6: //// 6
-      exercise(20);
-      break;
-    case ir7: //// 7
-      layDown(20);
-      break;
-    case ir8: //// 8
-      stand3();
-      break;
-    case ir9: //// 9
-      
-      break;
-    case ir0: //// 0
-      
-      break;
-    case irStar: //// *
-      
-      break;
-    case irPound: //// #
-      
-      break;
-  } 
-}
-void spider::ReadRemote()
-{
-  if (irrecv.decode(&results)) // nếu nhận được tín hiệu
-  {
-    control();
-    delay(200);
-    irrecv.resume(); // nhận giá trị tiếp theo
-  }
-}
-void spider::initRemote()
-{
-  irrecv.enableIRIn();
 }
 ////
 void spider::Scratch_command_processing()
@@ -907,4 +829,123 @@ void spider::readSensor(int device)
     }
     break;
   } 
+}
+void spider::_tone(float noteFrequency, long noteDuration, int silentDuration)
+{
+  if(silentDuration==0)
+    silentDuration = 1;
+  tone(buzzer, noteFrequency, noteDuration);
+  delay(noteDuration);
+  delay(silentDuration);
+}
+void spider::bendTones(float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration)
+{
+  if(silentDuration==0)
+    silentDuration = 1;
+  if(initFrequency < finalFrequency)
+  {
+    for(int i=initFrequency; i<finalFrequency; i=i*prop)
+    {
+      _tone(i, noteDuration,silentDuration);
+    }
+  }
+  else
+  {
+    for(int i=initFrequency; i>finalFrequency; i=i/prop)
+    {
+      _tone(i, noteDuration, silentDuration);
+    }
+  }
+}
+void spider::sing(int songName)
+{
+  switch(songName)
+  {
+    case S_connection:
+      _tone(note_E5,50,30);
+      _tone(note_E6,55,25);
+      _tone(note_A6,60,10);
+      break;
+    case S_disconnection:
+      _tone(note_E5,50,30);
+      _tone(note_A6,55,25);
+      _tone(note_E6,50,10);
+      break;
+    case S_buttonPushed:
+      bendTones (note_E6, note_G6, 1.03, 20, 2);
+      delay(30);
+      bendTones (note_E6, note_D7, 1.04, 10, 2);
+      break;
+    case S_mode1:
+      bendTones (note_E6, note_A6, 1.02, 30, 10);  //1318.51 to 1760
+      break;
+    case S_mode2:
+      bendTones (note_G6, note_D7, 1.03, 30, 10);  //1567.98 to 2349.32
+      break;
+    case S_mode3:
+      _tone(note_E6,50,100); //D6
+      _tone(note_G6,50,80);  //E6
+      _tone(note_D7,300,0);  //G6
+      break;
+    case S_surprise:
+      bendTones(800, 2150, 1.02, 10, 1);
+      bendTones(2149, 800, 1.03, 7, 1);
+      break;
+    case S_OhOoh:
+      bendTones(880, 2000, 1.04, 8, 3); //A5 = 880
+      delay(200);
+      for (int i=880; i<2000; i=i*1.04)
+      {
+        _tone(note_B5,5,10);
+      }
+      break;
+    case S_OhOoh2:
+      bendTones(1880, 3000, 1.03, 8, 3);
+      delay(200);
+      for (int i=1880; i<3000; i=i*1.03)
+      {
+        _tone(note_C6,10,10);
+      }
+      break;
+    case S_cuddly:
+      bendTones(700, 900, 1.03, 16, 4);
+      bendTones(899, 650, 1.01, 18, 7);
+      break;
+    case S_sleeping:
+      bendTones(100, 500, 1.04, 10, 10);
+      bendTones(2499, 1500, 1.05, 25, 8);
+      break;
+    case S_happy:
+      bendTones(1500, 2500, 1.05, 20, 8);
+      bendTones(2499, 1500, 1.05, 25, 8);
+      break;
+    case S_superHappy:
+      bendTones(2000, 6000, 1.05, 8, 3);
+      delay(50);
+      bendTones(5999, 2000, 1.05, 13, 2);
+      break;
+    case S_happy_short:
+      bendTones(1500, 2000, 1.05, 15, 8);
+      delay(100);
+      bendTones(1900, 2500, 1.05, 10, 8);
+      break;
+    case S_sad:
+      bendTones(880, 669, 1.02, 20, 200);
+      break;
+    case S_confused:
+      bendTones(1000, 1700, 1.03, 8, 2); 
+      bendTones(1699, 500, 1.04, 8, 3);
+      bendTones(1000, 1700, 1.05, 9, 10);
+      break;
+    case S_fart1:
+      bendTones(1600, 3000, 1.02, 2, 15);
+      break;
+    case S_fart2:
+      bendTones(2000, 6000, 1.02, 2, 20);
+      break;
+    case S_fart3:
+      bendTones(1600, 4000, 1.02, 2, 20);
+      bendTones(4000, 3000, 1.02, 2, 20);
+      break;
+  }
 }
