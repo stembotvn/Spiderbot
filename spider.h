@@ -4,10 +4,10 @@ an open source STEM robotics for kids
 http://stembot.vn
 */
 /*
-			   o o
+			     o o
 		--1--=======--2--
-			 =======
-			 =======
+			   =======
+			   =======
 		--3--=======--4--
 
 */
@@ -18,7 +18,7 @@ http://stembot.vn
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
-#include "IRremote.h"
+#include "Sounds.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -46,26 +46,6 @@ http://stembot.vn
 #define LDR1      A6
 #define LDR2      A7
 
-#define receiverPin A0
-// Define IR Remote Button Codes
-#define irUp  16736925
-#define irDown 16754775
-#define irRight 16761405
-#define irLeft 16720605
-#define irOK 16712445
-#define ir1 16738455
-#define ir2 16750695
-#define ir3 16756815
-#define ir4 16724175
-#define ir5 16718055
-#define ir6 16743045
-#define ir7 16716015
-#define ir8 16726215
-#define ir9 16734885
-#define ir0 16730805
-#define irStar 16728765
-#define irPound 16732845
-
 class spider
 {
 public:
@@ -88,13 +68,14 @@ public:
 	void backward(int late);
 	void turnright(int late);
 	void turnleft(int late);
-  void tone(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
+  void tones(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
   void tick(int n, uint16_t frequency, int times);
-	void control();
-	void ReadRemote();
-	void initRemote();
 	void readSerial();
 	void Scratch_command_processing();
+
+  void _tone (float noteFrequency, long noteDuration, int silentDuration);
+  void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
+  void sing(int songName);
 private:
   Servo _hip1;
 	Servo _knee1;
@@ -153,9 +134,6 @@ private:
     byte byteVal[2];
     short shortVal;
   }valShort;
-    ////
-  IRrecv irrecv= IRrecv(receiverPin);
-	decode_results results;
   /////////////////////////////////////////
   void parseData();
   void writeHead();
