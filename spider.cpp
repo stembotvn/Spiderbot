@@ -525,7 +525,7 @@ void spider::Scratch_command_processing()
     unsigned char c = serialRead&0xff;
     if(c==0x55&&isStart==false){
      if(prevc==0xff){
-      index=1;
+      index=1;`
       isStart = true;
      }
     }else{
@@ -546,7 +546,7 @@ void spider::Scratch_command_processing()
      }
      if(isStart&&dataLen==0&&index>3){ 
         isStart = false;
-        //parseData(); 
+        parseData(); 
         index=0;
      }
   }
@@ -592,21 +592,17 @@ void spider::parseData()
      break;
   }
 }
-void spider::writeHead()
-{
+void spider::writeHead(){
   writeSerial(0xff);
   writeSerial(0x55);
 }
-void spider::writeEnd()
-{
+void spider::writeEnd(){
   Serial.println(); 
 }
-void spider::writeSerial(unsigned char c)
-{
+void spider::writeSerial(unsigned char c){
   Serial.write(c);
 }
-unsigned char spider::readBuffer(int index)
-{
+unsigned char spider::readBuffer(int index){
   return buffer[index]; 
 }
 void spider::writeBuffer(int index,unsigned char c)
