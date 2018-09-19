@@ -18,7 +18,8 @@ http://stembot.vn
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
-#include "Sounds.h"
+#include "NegendoSounds.h"
+#include "EasySonar.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -38,8 +39,8 @@ http://stembot.vn
 #define hip4_pin	9
 #define knee4_pin	10
 
-#define Trig      A0
-#define Echo      A1
+#define SR04_Trig      A0
+#define SR04_Echo      A1
 #define CE_PIN    A2
 #define CSN_PIN   A3
 #define SET       A4
@@ -73,10 +74,17 @@ public:
 	void readSerial();
 	void Scratch_command_processing();
 
-  void _tone (float noteFrequency, long noteDuration, int silentDuration);
-  void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
-  void sing(int songName);
+  float readSonar();
+  void moveLDR();
+  int readLDRRight();
+  int readLDRLeft();
+
+  RF24 radio = RF24(CE_PIN, CSN_PIN);
+  NegendoSounds Sound = NegendoSounds(buzzer);
+
 private:
+  EasySonar Distance = EasySonar(SR04_Trig, SR04_Echo);
+
   Servo _hip1;
 	Servo _knee1;
 	Servo _hip2;
@@ -86,7 +94,7 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];
-  RF24 radio = RF24(CE_PIN, CSN_PIN);
+  
 
   const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
   uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
@@ -96,6 +104,10 @@ private:
   long _duration;
   long _startTime;
   long _timeout = 10000L;
+
+  int LDRR;
+  int LDRL;
+  int medium;
 
   bool _readDone = false; 
   char _buffer[64];

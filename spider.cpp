@@ -1,15 +1,14 @@
 #include "spider.h"
 #include "RF24.h"
 #include "EEPROM.h"
-//#include "IRremote.h"
 
 void spider::init()
 {
   Serial.begin(9600);
   pinMode(SET, INPUT_PULLUP);
   pinMode(buzzer, OUTPUT);
-  pinMode(Trig, OUTPUT);
-  pinMode(Echo, INPUT);
+  pinMode(SR04_Trig, OUTPUT);
+  pinMode(SR04_Echo, INPUT);
   _hip1.attach(hip1_pin);
   _knee1.attach(knee1_pin);
   _hip2.attach(hip2_pin);    
@@ -19,10 +18,11 @@ void spider::init()
   _hip4.attach(hip4_pin);
   _knee4.attach(knee4_pin);
 
-  radio.begin();
-  radio.setChannel(108);
-  radio.setDataRate(RF24_1MBPS);
-  radio.setPALevel(RF24_PA_HIGH);
+  LDRR = analogRead(LDR1);
+  LDRL = analogRead(LDR2);
+  LDRR = map(LDRR,0,800,0,100);
+  LDRL = map(LDRL,0,800,0,100);
+  medium = (LDRL + LDRR) / 2;
 }
 void spider::initNRF()
 {
@@ -65,7 +65,7 @@ void spider::setAddress()
           _address = _Add[0];
           EEPROM.write(0,_address);
           Serial.println("Set address done.");
-          tick(3,1000,200);
+          Sound.sing(S_connection);
           break;
         }
       }
@@ -73,8 +73,8 @@ void spider::setAddress()
     }
     else
     {
-      Serial.println("No change of address.");
-      tick(1,1000,1000);
+      Serial.println("The address doesn't change.");
+      Sound.sing(S_cuddly);
     }
 
   }
@@ -830,122 +830,50 @@ void spider::readSensor(int device)
     break;
   } 
 }
-void spider::_tone(float noteFrequency, long noteDuration, int silentDuration)
+float spider::readSonar()
 {
-  if(silentDuration==0)
-    silentDuration = 1;
-  tone(buzzer, noteFrequency, noteDuration);
-  delay(noteDuration);
-  delay(silentDuration);
+  float range = Distance.Ranging(CM);
+  delay(100);
+  return range;
 }
-void spider::bendTones(float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration)
+void spider::moveLDR()
 {
-  if(silentDuration==0)
-    silentDuration = 1;
-  if(initFrequency < finalFrequency)
+  LDRR = analogRead(LDR1);
+  LDRL = analogRead(LDR2);
+  LDRR = map(LDRR,0,800,0,100);
+  LDRL = map(LDRL,0,800,0,100);
+  LDRR = LDRR > 100 ? 100 : LDRR;
+  LDRL = LDRL > 100 ? 100 : LDRL;
+
+  if((LDRR < (medium + 10)) && (LDRL < (medium + 10)))
   {
-    for(int i=initFrequency; i<finalFrequency; i=i*prop)
-    {
-      _tone(i, noteDuration,silentDuration);
-    }
+    stand2();
   }
-  else
+  else if((LDRR > (medium + 20)) && (LDRL > (medium + 20)))
   {
-    for(int i=initFrequency; i>finalFrequency; i=i/prop)
-    {
-      _tone(i, noteDuration, silentDuration);
-    }
+    forward(70);
+    forward(70);
+  }
+  else if((LDRL - LDRR) > 20)
+  {
+    turnleft(70);
+  }
+  else if((LDRR - LDRL) > 20)
+  {
+    turnright(70);
   }
 }
-void spider::sing(int songName)
+int spider::readLDRRight()
 {
-  switch(songName)
-  {
-    case S_connection:
-      _tone(note_E5,50,30);
-      _tone(note_E6,55,25);
-      _tone(note_A6,60,10);
-      break;
-    case S_disconnection:
-      _tone(note_E5,50,30);
-      _tone(note_A6,55,25);
-      _tone(note_E6,50,10);
-      break;
-    case S_buttonPushed:
-      bendTones (note_E6, note_G6, 1.03, 20, 2);
-      delay(30);
-      bendTones (note_E6, note_D7, 1.04, 10, 2);
-      break;
-    case S_mode1:
-      bendTones (note_E6, note_A6, 1.02, 30, 10);  //1318.51 to 1760
-      break;
-    case S_mode2:
-      bendTones (note_G6, note_D7, 1.03, 30, 10);  //1567.98 to 2349.32
-      break;
-    case S_mode3:
-      _tone(note_E6,50,100); //D6
-      _tone(note_G6,50,80);  //E6
-      _tone(note_D7,300,0);  //G6
-      break;
-    case S_surprise:
-      bendTones(800, 2150, 1.02, 10, 1);
-      bendTones(2149, 800, 1.03, 7, 1);
-      break;
-    case S_OhOoh:
-      bendTones(880, 2000, 1.04, 8, 3); //A5 = 880
-      delay(200);
-      for (int i=880; i<2000; i=i*1.04)
-      {
-        _tone(note_B5,5,10);
-      }
-      break;
-    case S_OhOoh2:
-      bendTones(1880, 3000, 1.03, 8, 3);
-      delay(200);
-      for (int i=1880; i<3000; i=i*1.03)
-      {
-        _tone(note_C6,10,10);
-      }
-      break;
-    case S_cuddly:
-      bendTones(700, 900, 1.03, 16, 4);
-      bendTones(899, 650, 1.01, 18, 7);
-      break;
-    case S_sleeping:
-      bendTones(100, 500, 1.04, 10, 10);
-      bendTones(2499, 1500, 1.05, 25, 8);
-      break;
-    case S_happy:
-      bendTones(1500, 2500, 1.05, 20, 8);
-      bendTones(2499, 1500, 1.05, 25, 8);
-      break;
-    case S_superHappy:
-      bendTones(2000, 6000, 1.05, 8, 3);
-      delay(50);
-      bendTones(5999, 2000, 1.05, 13, 2);
-      break;
-    case S_happy_short:
-      bendTones(1500, 2000, 1.05, 15, 8);
-      delay(100);
-      bendTones(1900, 2500, 1.05, 10, 8);
-      break;
-    case S_sad:
-      bendTones(880, 669, 1.02, 20, 200);
-      break;
-    case S_confused:
-      bendTones(1000, 1700, 1.03, 8, 2); 
-      bendTones(1699, 500, 1.04, 8, 3);
-      bendTones(1000, 1700, 1.05, 9, 10);
-      break;
-    case S_fart1:
-      bendTones(1600, 3000, 1.02, 2, 15);
-      break;
-    case S_fart2:
-      bendTones(2000, 6000, 1.02, 2, 20);
-      break;
-    case S_fart3:
-      bendTones(1600, 4000, 1.02, 2, 20);
-      bendTones(4000, 3000, 1.02, 2, 20);
-      break;
-  }
+  LDRR = analogRead(LDR1);
+  LDRR = map(LDRR,0,800,0,100);
+  LDRR = LDRR > 100 ? 100 : LDRR;
+  return LDRR;
+}
+int spider::readLDRLeft()
+{
+  LDRL = analogRead(LDR2);
+  LDRL = map(LDRL,0,800,0,100);
+  LDRL = LDRL > 100 ? 100 : LDRR;
+  return LDRL;
 }
