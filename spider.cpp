@@ -447,7 +447,7 @@ void spider::Scratch_command_processing()
     unsigned char c = serialRead&0xff;
     if(c==0x55&&isStart==false){
      if(prevc==0xff){
-      index=1;`
+      index=1;
       isStart = true;
      }
     }else{
@@ -473,11 +473,15 @@ void spider::Scratch_command_processing()
      }
   }
  }
-
-
+//////////////////////////////////////////////////
 /*
-ff 55 len idx action device port  slot  data a
-0  1  2   3   4      5      6     7     8
+mBlock to Robot: 
+ff 55 len idx action device port  slot  data \n
+0  1   2   3   4      5      6     7     8
+//////////////////////
+Robot to mBlock (Response Get action) /////////////
+ff 55 idx Type  data  0xa  0xd
+0  1   2    3     4 
 */
 void spider::parseData()
 {
@@ -775,9 +779,11 @@ int spider::searchServoPin(int pin)
 }
 void spider::readSensor(int device)
 {
-  /**************************************************
+  /*****************Recevice******************
       ff 55 len idx action device port slot data a
       0  1  2   3   4      5      6    7    8
+      **************Response*****************
+      ff 55 idx type data \r \n
   ***************************************************/
   float value=0.0;
   int port,slot,pin;
