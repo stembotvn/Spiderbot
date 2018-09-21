@@ -1,6 +1,6 @@
 #include "spider.h"
 #include "RF24.h"
-#include "EEPROM.h"
+#include <EEPROM.h>
 //#include "IRremote.h"
 
 void spider::init()
@@ -18,67 +18,26 @@ void spider::init()
   _knee3.attach(knee3_pin);
   _hip4.attach(hip4_pin);
   _knee4.attach(knee4_pin);
-
-  radio.begin();
-  radio.setChannel(108);
-  radio.setDataRate(RF24_1MBPS);
-  radio.setPALevel(RF24_PA_HIGH);
+  
+   Serial.begin(115200);
+  initNRF();
 }
 void spider::initNRF()
 {
-  radio.begin();
-  radio.setChannel(108);
-  radio.setDataRate(RF24_1MBPS);
-  radio.setPALevel(RF24_PA_HIGH);
-  convertAdd();
+load_address();
+radio.begin();
+network.begin(108,nodeAddress);
 }
-void spider::convertAdd()
-{
-  _readAdd = EEPROM.read(0);
-  _AddRandom = (_AddDefault & ~0xFFLL) | _readAdd;
-  radio.openReadingPipe(1,_AddRandom);
-  radio.startListening();
+////
+void spider::load_address()
+{ 
+  if (nodeAddress=255) nodeAddress = 1; 
+  else  nodeAddress = EEPROM.read(0);
   Serial.print("Address: ");
-  Serial.print((unsigned long)(_AddRandom >> 32), 16);
-  Serial.println((unsigned long)_AddRandom, 16); 
-  Serial.println("Ready to receive data");
+  Serial.println(nodeAddress);
 }
-void spider::setAddress()
-{
-  if(!digitalRead(SET))
-  {
-    Serial.println("Set Address");
-    Serial.println("Wait 5s...");
-    _startTime = millis();
-    while(!digitalRead(SET));
-    _duration = millis() - _startTime;
-    if(_duration > 5000)
-    {
-      radio.openReadingPipe(1,_AddDefault);
-      radio.startListening();
-      Serial.println("Ready to receive new address...");
-      for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
-      {
-        if(radio.available())
-        {
-          radio.read(_Add, sizeof(_Add));
-          _address = _Add[0];
-          EEPROM.write(0,_address);
-          Serial.println("Set address done.");
-          tick(3,1000,200);
-          break;
-        }
-      }
-      convertAdd();
-    }
-    else
-    {
-      Serial.println("No change of address.");
-      tick(1,1000,1000);
-    }
+/////
 
-  }
-}
 void spider::standUp(int t)
 {
 	_hip1.write(70);
@@ -429,50 +388,27 @@ void spider::tick(int n, uint16_t frequency, int times)
   }
 }
 ////
-void spider::readSerial(){
-    isAvailable = false;
-  if(Serial.available()>0){
-    isAvailable = true;
-    serialRead = Serial.read();}
+void spider::readRF(){
+network.update(); 
+RFread_size = 0; 
+RF24NetworkHeader header;
+while ( network.available() )  {
+  network.peek(header);
+  if(header.type == 'T'){
+    RFread_size = network.read(header,buffer,40);
+   isAvailable = true; 
+   State = PARSING; //Data available, go to Parsing
+    }
+  else if(header.type == 'R'){
+   RFread_size = network.read(header,RC_buf,20);
+   isAvailable = true; 
+   State = RC; //RC data read, go to RC running 
+
+   } 
+ }
 }
 ////
-void spider::Scratch_command_processing()
-{
- /*  isAvailable = false;
-  if(Serial.available()>0){
-    isAvailable = true;
-    serialRead = Serial.read();
-  }*/
-  if(isAvailable){
-    unsigned char c = serialRead&0xff;
-    if(c==0x55&&isStart==false){
-     if(prevc==0xff){
-      index=1;
-      isStart = true;
-     }
-    }else{
-      prevc = c;  
-      if(isStart){
-        if(index==2){
-         dataLen = c; 
-        }else if(index>2){
-          dataLen--;
-        }
-      buffer[index]=c;
-      }
-    }
-     index++;
-     if(index>51){
-      index=0; 
-      isStart=false;
-     }
-     if(isStart&&dataLen==0&&index>3){ 
-        isStart = false;
-        parseData(); 
-        index=0;
-     }
-  }
- }
+
 //////////////////////////////////////////////////
 /*
 mBlock to Robot: 
@@ -484,7 +420,8 @@ ff 55 idx Type  data  0xa  0xd
 0  1   2    3     4 
 */
 void spider::parseData()
-{
+{ 
+  ind = 0; //reset RF_buffer (send) index
   isStart = false;
   int idx = buffer[3];
   command_index = (uint8_t)idx;
@@ -494,92 +431,174 @@ void spider::parseData()
     case GET:{
         if(device != ULTRASONIC_SENSOR){
           writeHead();
-          writeSerial(idx);
+          writeBuffer(ind++,idx);
         }
         readSensor(device);
         writeEnd();
+        State = WRITE_RF;
      }
      break;
      case RUN:{
        runModule(device);
        callOK();
+       State = WRITE_RF;
+
      }
       break;
-      case RESET:{
-        //reset
-        
-        callOK();
-      }
-     break;
-     case START:{
-        //start
-        callOK();
-      }
-     break;
+     
   }
 }
+///////////
+void spider::writeRF() {
+RF24NetworkHeader header(MASTER_NODE,'T'); //marking data stream is PC/Robot
+bool OK = network.write(header,RF_buf,ind-1);
+if (OK) {
+  
+  }
+else {
+
+ }  
+ind = 0; 
+State = READ_RF; 
+
+}
+/////////
+void spider::RC_Run(){
+
+}
+/////
+void spider::setAddress()
+{
+  if(!digitalRead(SET))
+  {
+    Serial.println("Set Address");
+    Serial.println("Wait 5s...");
+    _startTime = millis();
+    while(!digitalRead(SET));
+    _duration = millis() - _startTime;
+    if(_duration > 5000)
+    {
+      network.begin(108,Default_Addr);
+
+      Serial.println("Ready to receive new address...");
+      for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
+      { 
+        network.update(); 
+         
+        while(network.available())
+        { 
+          RF24NetworkHeader header;
+         network.peek(header);
+         if (header.type == 'P') {
+          network.read(header,&new_addr, 2);
+          EEPROM.write(0,new_addr);
+          nodeAddress = new_addr; 
+          network.begin(108,nodeAddress);       
+          Serial.println("Set address done.");
+          tick(3,1000,200);
+          break;
+          }
+        }
+      }
+    }
+    else
+    {
+      Serial.println("No change of address.");
+      tick(1,1000,1000);
+    }
+
+  }
+  State = READ_RF;//back to wait RF message
+}
+/////////////////
+void spider::run(){
+ switch  (State) {
+   case READ_RF: {
+   readRF();
+   }
+   break;
+   case PARSING: {
+   parseData();
+   }
+   break;
+   case WRITE_RF: {
+   writeRF();
+   }
+   break;
+   case RC : {
+   RC_Run();
+   }
+   break;
+   case SET_ADDR: {
+   setAddress();
+   }
+   break; 
+ }
+}
+///////////////////////////
+//Private method for data package
 void spider::writeHead(){
-  writeSerial(0xff);
-  writeSerial(0x55);
+  ind = 0;
+  RF_buf[ind++]=0xff;
+  RF_buf[ind++]=0x55;
 }
 void spider::writeEnd(){
-  Serial.println(); 
+RF_buf[ind++] = 0xd; 
+RF_buf[ind] = 0xa; 
 }
-void spider::writeSerial(unsigned char c){
-  Serial.write(c);
-}
-unsigned char spider::readBuffer(int index){
+
+unsigned char spider::readBuffer(int index){    
   return buffer[index]; 
 }
 void spider::writeBuffer(int index,unsigned char c)
 {
-  buffer[index]=c;
+  RF_buf[index]=c;
 }
 void spider::callOK()
-{
-  writeSerial(0xff);
-  writeSerial(0x55);
+{ ind = 0;
+  writeBuffer(ind++,0xff);
+  writeBuffer(ind++,0x55);
   writeEnd();
 }
 void spider::sendByte(char c)
 {
-  writeSerial(1);
-  writeSerial(c);
+  writeBuffer(ind++,1);
+  writeBuffer(ind++,c);
 }
 void spider::sendString(String s)
 {
   int l = s.length();
-  writeSerial(4);
-  writeSerial(l);
+  writeBuffer(ind++,4);
+  writeBuffer(ind++,l);
   for(int i=0;i<l;i++)
   {
-    writeSerial(s.charAt(i));
+    writeBuffer(ind++,s.charAt(i));
   }
 }
 void spider::sendFloat(float value)
 {
-  writeSerial(0x2);
+  writeBuffer(ind++,0x2);
   val.floatVal = value;
-  writeSerial(val.byteVal[0]);
-  writeSerial(val.byteVal[1]);
-  writeSerial(val.byteVal[2]);
-  writeSerial(val.byteVal[3]);
+  writeBuffer(ind++,val.byteVal[0]);
+  writeBuffer(ind++,val.byteVal[1]);
+  writeBuffer(ind++,val.byteVal[2]);
+  writeBuffer(ind++,val.byteVal[3]);
 }
 void spider::sendShort(double value)
 {
-  writeSerial(3);
+  writeBuffer(ind++,3);
   valShort.shortVal = value;
-  writeSerial(valShort.byteVal[0]);
-  writeSerial(valShort.byteVal[1]);
+  writeBuffer(ind++,valShort.byteVal[0]);
+  writeBuffer(ind++,valShort.byteVal[1]);
 }
 void spider::sendDouble(double value)
 {
-  writeSerial(2);
+  writeBuffer(ind++,2);
   valDouble.doubleVal = value;
-  writeSerial(valDouble.byteVal[0]);
-  writeSerial(valDouble.byteVal[1]);
-  writeSerial(valDouble.byteVal[2]);
-  writeSerial(valDouble.byteVal[3]);
+  writeBuffer(ind++,valDouble.byteVal[0]);
+  writeBuffer(ind++,valDouble.byteVal[1]);
+  writeBuffer(ind++,valDouble.byteVal[2]);
+  writeBuffer(ind++,valDouble.byteVal[3]);
 }
 short spider::readShort(int idx)
 {

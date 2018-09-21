@@ -15,6 +15,8 @@ http://stembot.vn
 #define spider_h
 
 #include "RF24.h"
+#include "RF24Network.h"
+
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
@@ -45,16 +47,30 @@ http://stembot.vn
 #define SET       A4
 #define LDR1      A6
 #define LDR2      A7
-
+////////define State 
+#define READ_RF   0
+#define PARSING   1
+#define RUN_CMD  2
+#define GET_DATA 3
+#define RC       4
+#define WRITE_RF 5
+#define SET_ADDR 6
+///
+#define MASTER_NODE 0
 class spider
 {
 public:
-	spider(){}
 
+	spider(){}
+    RF24 radio = RF24(CE_PIN, CSN_PIN);
+    RF24Network network = RF24Network(radio);    
+
+ /////system function///
 	void init();
   void initNRF();
-  void convertAdd();        // Chuyển đổi địa chỉ lưu từ EEPROM
+  void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
   void setAddress();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
+//////Robot Action//////
 	void standUp(int t);
 	void layDown(int t);
 	void sleep(int t);
@@ -70,12 +86,16 @@ public:
 	void turnleft(int late);
   void tones(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
   void tick(int n, uint16_t frequency, int times);
-	void readSerial();
-	void Scratch_command_processing();
-
   void _tone (float noteFrequency, long noteDuration, int silentDuration);
   void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
   void sing(int songName);
+  ///State Function/////
+  void readRF();
+  void parseData();
+  void writeRF();
+  void RC_Run();
+  void run();
+  int State = 0; 
 private:
   Servo _hip1;
 	Servo _knee1;
@@ -86,28 +106,32 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];
-  RF24 radio = RF24(CE_PIN, CSN_PIN);
 
   const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
   uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
+  uint8_t nodeAddress = 2; 
   byte _readAdd;
   byte _address;
+  byte new_addr; 
+  unsigned int  Default_Addr = 2;
   int _Add[1];
   long _duration;
   long _startTime;
   long _timeout = 10000L;
-
+  int  RFread_size; 
   bool _readDone = false; 
   char _buffer[64];
 	int _sofar;
 	int _count;
 	bool  isAvailable = false;
-	char serialRead;
   bool isStart=false;
   unsigned char prevc=0;
   int index = 0;
+  int ind = 0; 
   int dataLen;
-  char buffer[52];
+  unsigned char buffer[32]; //for reading RF
+  unsigned char RF_buf[32]; //for writing RF
+  unsigned char RC_buf[20]; //for Reading Remote
   uint8_t command_index = 0;
   float angleServo = 90.0;
   int servo_pins[8]={0,0,0,0,0,0,0,0};
@@ -135,13 +159,11 @@ private:
     short shortVal;
   }valShort;
   /////////////////////////////////////////
-  void parseData();
   void writeHead();
   void writeEnd();
-  void writeSerial(unsigned char c);
   /////////////////////////////////////////
-  unsigned char readBuffer(int index);
-  void writeBuffer(int index,unsigned char c);
+  unsigned char readBuffer(int index);  //read RF Comming buffer
+  void writeBuffer(int index,unsigned char c); //write to RF Sending Buffer
   /////////////////////////////////
   void callOK();
   void sendByte(char c);
