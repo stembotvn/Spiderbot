@@ -13,7 +13,7 @@ http://stembot.vn
 */
 #ifndef spider_h
 #define spider_h
-
+#define DEBUG 1
 #include "RF24.h"
 #include "RF24Network.h"
 
@@ -95,6 +95,9 @@ public:
   void writeRF();
   void RC_Run();
   void run();
+  ////
+  void PrintDebug(unsigned char *buf,int len);
+  ///
   int State = 0; 
 private:
   Servo _hip1;
@@ -109,11 +112,11 @@ private:
 
   const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
   uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
-  uint8_t nodeAddress = 2; 
+  uint16_t nodeAddress = 02; 
   byte _readAdd;
   byte _address;
   byte new_addr; 
-  unsigned int  Default_Addr = 2;
+  uint16_t  Default_Addr = 02;
   int _Add[1];
   long _duration;
   long _startTime;

@@ -5,7 +5,6 @@
 
 void spider::init()
 {
-  Serial.begin(9600);
   pinMode(SET, INPUT_PULLUP);
   pinMode(buzzer, OUTPUT);
   pinMode(Trig, OUTPUT);
@@ -20,18 +19,22 @@ void spider::init()
   _knee4.attach(knee4_pin);
   
    Serial.begin(115200);
-  initNRF();
+   initNRF();
+   #ifdef DEBUG
+   Serial.print("Guit Start, address: ");
+   Serial.println(nodeAddress); 
+   #endif 
 }
 void spider::initNRF()
 {
-load_address();
+//load_address();
 radio.begin();
 network.begin(108,nodeAddress);
 }
 ////
 void spider::load_address()
 { 
-  if (nodeAddress=255) nodeAddress = 1; 
+  if (nodeAddress=255) nodeAddress = 2; 
   else  nodeAddress = EEPROM.read(0);
   Serial.print("Address: ");
   Serial.println(nodeAddress);
@@ -391,12 +394,18 @@ void spider::tick(int n, uint16_t frequency, int times)
 void spider::readRF(){
 network.update(); 
 RFread_size = 0; 
-RF24NetworkHeader header;
+
 while ( network.available() )  {
+  RF24NetworkHeader header;
   network.peek(header);
   if(header.type == 'T'){
     RFread_size = network.read(header,buffer,40);
-   isAvailable = true; 
+    isAvailable = true; 
+   #ifdef DEBUG 
+    Serial.print("received buffer: ");
+    PrintDebug(buffer,RFread_size+2);
+    Serial.println();
+   #endif 
    State = PARSING; //Data available, go to Parsing
     }
   else if(header.type == 'R'){
@@ -408,7 +417,13 @@ while ( network.available() )  {
  }
 }
 ////
-
+void spider::PrintDebug(unsigned char *buf,int len){
+  for (int i=0;i<len;i++)
+    {
+      Serial.print(*(buf+i)); Serial.print("-");
+    }
+    Serial.println();
+}
 //////////////////////////////////////////////////
 /*
 mBlock to Robot: 
@@ -451,9 +466,13 @@ void spider::parseData()
 ///////////
 void spider::writeRF() {
 RF24NetworkHeader header(MASTER_NODE,'T'); //marking data stream is PC/Robot
-bool OK = network.write(header,RF_buf,ind-1);
+bool OK = network.write(header,RF_buf,ind+1);
 if (OK) {
-  
+   #ifdef DEBUG 
+    Serial.print("Sent buffer: ");
+    PrintDebug(RF_buf,ind+1);
+    Serial.println();
+   #endif 
   }
 else {
 
@@ -530,7 +549,7 @@ void spider::run(){
    }
    break;
    case SET_ADDR: {
-   setAddress();
+ //  setAddress();
    }
    break; 
  }
