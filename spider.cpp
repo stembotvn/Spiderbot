@@ -22,22 +22,24 @@ void spider::init()
    initNRF();
    #ifdef DEBUG
    Serial.print("Guit Start, address: ");
-   Serial.println(nodeAddress); 
+   Serial.println(myNode); 
    #endif 
 }
 void spider::initNRF()
 {
 //load_address();
-radio.begin();
-network.begin(108,nodeAddress);
+Radio.init(myNode);    //init with my Node address
+//network.begin(108,nodeAddress);
+  first_run = true;      //set first run for next State
+
 }
 ////
 void spider::load_address()
 { 
-  if (nodeAddress=255) nodeAddress = 2; 
-  else  nodeAddress = EEPROM.read(0);
+  if (myNode=255) myNode = 2; 
+  else  myNode = EEPROM.read(0);
   Serial.print("Address: ");
-  Serial.println(nodeAddress);
+  Serial.println(myNode);
 }
 /////
 
@@ -392,28 +394,37 @@ void spider::tick(int n, uint16_t frequency, int times)
 }
 ////
 void spider::readRF(){
-network.update(); 
+//network.update(); 
 RFread_size = 0; 
 
-while ( network.available() )  {
-  RF24NetworkHeader header;
-  network.peek(header);
-  if(header.type == 'T'){
-    RFread_size = network.read(header,buffer,40);
+if ( Radio.RFDataCome() )  {
+    Serial.println("RF data come!");
+
+    while (Radio.RFDataCome()) {
+  //RF24NetworkHeader header;
+ // network.peek(header);
+//  if(header.type == 'T'){
+    RFread_size = Radio.RFRead(buffer);
     isAvailable = true; 
-   #ifdef DEBUG 
-    Serial.print("received buffer: ");
+    if (RFread_size <3) return; 
+    else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 2)){
+      
+       #ifdef DEBUG 
+    Serial.print("received valid data: ");
     PrintDebug(buffer,RFread_size+2);
     Serial.println();
    #endif 
-   State = PARSING; //Data available, go to Parsing
+     State = PARSING;
+     first_run = true;      //set first run for next State
+      
     }
-  else if(header.type == 'R'){
-   RFread_size = network.read(header,RC_buf,20);
-   isAvailable = true; 
-   State = RC; //RC data read, go to RC running 
-
-   } 
+    else  {Serial.println("invalid data received"); 
+     State = READ_RF;
+     first_run = true;      //set first run for next State
+    }
+   //Data available, go to Parsing
+   }
+  
  }
 }
 ////
@@ -451,12 +462,15 @@ void spider::parseData()
         readSensor(device);
         writeEnd();
         State = WRITE_RF;
+          first_run = true;      //set first run for next State
+
      }
      break;
      case RUN:{
        runModule(device);
        callOK();
        State = WRITE_RF;
+      first_run = true;      //set first run for next State
 
      }
       break;
@@ -465,8 +479,8 @@ void spider::parseData()
 }
 ///////////
 void spider::writeRF() {
-RF24NetworkHeader header(MASTER_NODE,'T'); //marking data stream is PC/Robot
-bool OK = network.write(header,RF_buf,ind+1);
+//RF24NetworkHeader header(MASTER_NODE,'T'); //marking data stream is PC/Robot
+bool OK = Radio.RFSend(toNode,RF_buf,ind+1);
 if (OK) {
    #ifdef DEBUG 
     Serial.print("Sent buffer: ");
@@ -479,6 +493,8 @@ else {
  }  
 ind = 0; 
 State = READ_RF; 
+  first_run = true;      //set first run for next State
+
 
 }
 /////////
@@ -497,26 +513,24 @@ void spider::setAddress()
     _duration = millis() - _startTime;
     if(_duration > 5000)
     {
-      network.begin(108,Default_Addr);
+      Radio.SetAddress(Default_Addr);
 
       Serial.println("Ready to receive new address...");
       for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
       { 
-        network.update(); 
+        //network.update(); 
          
-        while(network.available())
+        while(Radio.RFDataCome())
         { 
-          RF24NetworkHeader header;
-         network.peek(header);
-         if (header.type == 'P') {
-          network.read(header,&new_addr, 2);
+       
+          Radio.RFRead(&new_addr);
           EEPROM.write(0,new_addr);
-          nodeAddress = new_addr; 
-          network.begin(108,nodeAddress);       
-          Serial.println("Set address done.");
+          myNode = new_addr; 
+          Radio.SetAddress(myNode);       
+          Serial.print("Set address done:"); Serial.println(myNode);
           tick(3,1000,200);
           break;
-          }
+          
         }
       }
     }
@@ -531,6 +545,15 @@ void spider::setAddress()
 }
 /////////////////
 void spider::run(){
+  if (first_run)  {
+   timeStart = millis();
+   #ifdef DEBUG 
+         Serial.print("State No: ");
+         Serial.println(State);
+         Serial.println(" Begin");
+   #endif
+   first_run = false; 
+}  
  switch  (State) {
    case READ_RF: {
    readRF();
@@ -817,10 +840,10 @@ int spider::searchServoPin(int pin)
 }
 void spider::readSensor(int device)
 {
-  /*****************Recevice******************
+  /*****************Recevice*************************
       ff 55 len idx action device port slot data a
       0  1  2   3   4      5      6    7    8
-      **************Response*****************
+  *********************Response**********************
       ff 55 idx type data \r \n
   ***************************************************/
   float value=0.0;

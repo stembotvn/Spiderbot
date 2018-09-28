@@ -14,9 +14,9 @@ http://stembot.vn
 #ifndef spider_h
 #define spider_h
 #define DEBUG 1
-#include "RF24.h"
-#include "RF24Network.h"
-
+//#include "RF24.h"
+//#include "RF24Network.h"
+#include "EasyRF.h"
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
@@ -57,14 +57,13 @@ http://stembot.vn
 #define SET_ADDR 6
 ///
 #define MASTER_NODE 0
-class spider
+class spider 
 {
 public:
 
 	spider(){}
-    RF24 radio = RF24(CE_PIN, CSN_PIN);
-    RF24Network network = RF24Network(radio);    
-
+  RF24 myRadio=RF24(CE_PIN,CSN_PIN);
+  EasyRF Radio = EasyRF(myRadio);
  /////system function///
 	void init();
   void initNRF();
@@ -109,14 +108,16 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];
-
+  double timeStart; 
   const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
   uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
-  uint16_t nodeAddress = 02; 
+  uint16_t myNode = 2; 
+  uint16_t toNode;
   byte _readAdd;
   byte _address;
   byte new_addr; 
   uint16_t  Default_Addr = 02;
+  bool first_run = true;
   int _Add[1];
   long _duration;
   long _startTime;
