@@ -2,6 +2,10 @@
 
 spider Guti;
 
+#define High  40
+#define Medium  70
+#define Low 100
+
 int Data[9];
 int old_Data[9];
 
@@ -20,27 +24,27 @@ void Move()
 {
   if(F == 1)
   {
-    Guti.forward(70);
+    Guti.forward(Speed);
     delay(100);
     Guti.stand2();
   }
   else if(B == 1)
   {
-    Guti.backward(70);
+    Guti.backward(Speed);
     delay(100);
     Guti.stand2();
   }
   else if(R == 1)
   {
     Serial.println("Turn right");
-    Guti.turnright(70);
+    Guti.turnright(Speed);
     delay(100);
     Guti.stand2();
   }
   else if(L == 1)
   {
     Serial.println("Turn left");
-    Guti.turnleft(70);
+    Guti.turnleft(Speed);
     delay(100);
     Guti.stand2();
   }
@@ -203,6 +207,12 @@ void readRadio()
         Speed = Data[8];
     }
   }
+  if(Speed <= 30)
+    Speed = Low;
+  else if ((Speed > 30) && (Speed < 70))
+    Speed = Medium;
+  else
+    Speed = High;
 }
 //////////////////////////////////////////////
 void setup()

@@ -50,14 +50,20 @@ void spider::setAddress()
     Serial.println("Set Address");
     Serial.println("Wait 5s...");
     _startTime = millis();
-    while(!digitalRead(SET));
+    while(!digitalRead(SET))
+    {
+      if(millis() - _startTime == 5000)
+      {
+        Sound.sing(S_mode3);
+      }
+    }
     _duration = millis() - _startTime;
     if(_duration > 5000)
     {
       radio.openReadingPipe(1,_AddDefault);
       radio.startListening();
       Serial.println("Ready to receive new address...");
-      for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
+      for(unsigned long starts =  millis(); (millis() - starts) < _timeout;)
       {
         if(radio.available())
         {
@@ -76,7 +82,6 @@ void spider::setAddress()
       Serial.println("The address doesn't change.");
       Sound.sing(S_cuddly);
     }
-
   }
 }
 void spider::standUp(int t)
@@ -166,16 +171,16 @@ void spider::stand3()
 void spider::start(int t)
 {
   int turn1;
-	_hip1.write(160);
-  _knee1.write(170);
-  _hip2.write(160);
-  _knee2.write(10);
-  _hip3.write(160);
-  _knee3.write(10);
-  _hip4.write(160);
-  _knee4.write(170);
+	_hip1.write(150);
+  _knee1.write(130);
+  _hip2.write(150);
+  _knee2.write(50);
+  _hip3.write(150);
+  _knee3.write(50);
+  _hip4.write(150);
+  _knee4.write(130);
   delay(100);
-  for( turn1 = 160; turn1 >20; turn1--)
+  for( turn1 = 150; turn1 > 30; turn1--)
   {
     _hip1.write(turn1);
     _hip2.write(turn1);
@@ -184,7 +189,7 @@ void spider::start(int t)
     delay(t);
   }
   delay(500);
-  for(turn1 = 20; turn1 <160; turn1++)
+  for(turn1 = 30; turn1 < 150; turn1++)
   {
     _hip1.write(turn1);
     _hip2.write(turn1);
@@ -256,8 +261,8 @@ void spider::exercise(int t)
   delay(200);
   while(k < 2)
   {
-    y = 180;
-    for( x = 0; x < 180; x++)
+    y = 120;
+    for( x = 60; x < 120; x++)
     {
       _knee1.write(x);
       _knee2.write(x);
@@ -266,7 +271,7 @@ void spider::exercise(int t)
       y--;
       delay(t); 
     }
-    for(x = 180; x >0; x--)
+    for(x = 120; x > 60; x--)
     {
       _knee1.write(x);
       _knee2.write(x);
@@ -277,7 +282,7 @@ void spider::exercise(int t)
     }
     k++;
   }
-  y = 0;
+  y = 60;
 }
 
 void spider::forward(int late)
