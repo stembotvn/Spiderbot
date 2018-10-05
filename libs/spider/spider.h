@@ -54,7 +54,10 @@ http://stembot.vn
 #define GET_DATA 3
 #define RC       4
 #define WRITE_RF 5
-#define SET_ADDR 6
+#define IN_CONFIG 6
+///define for operation Mode
+#define RUN_MODE 0
+#define CONFIG_MODE 1
 ///
 #define MASTER_NODE 0
 class spider 
@@ -68,7 +71,7 @@ public:
 	void init();
   void initNRF();
   void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
-  void setAddress();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
+  void inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
 //////Robot Action//////
 	void standUp(int t);
 	void layDown(int t);
@@ -89,6 +92,7 @@ public:
   void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
   void sing(int songName);
   ///State Function/////
+  void config_Address(uint16_t myaddress,uint16_t toAddress);
   void readRF();
   void parseData();
   void writeRF();
@@ -109,17 +113,15 @@ private:
 	Servo _knee4;
   Servo servos[8];
   double timeStart; 
-  const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
-  uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
   uint16_t myNode = 2; 
   uint16_t toNode;
-  byte _readAdd;
-  byte _address;
-  byte new_addr; 
-  uint16_t  Default_Addr = 02;
+ // byte _readAdd;
+ // byte _address;
+  uint16_t new_addr; 
+  uint16_t  Default_Addr = 1000;
   bool first_run = true;
+  uint8_t Mode = RUN_MODE; 
   int _Add[1];
-  long _duration;
   long _startTime;
   long _timeout = 10000L;
   int  RFread_size; 
@@ -168,6 +170,7 @@ private:
   /////////////////////////////////////////
   unsigned char readBuffer(int index);  //read RF Comming buffer
   void writeBuffer(int index,unsigned char c); //write to RF Sending Buffer
+  void clearBuffer(unsigned char *buf, int leng);
   /////////////////////////////////
   void callOK();
   void sendByte(char c);
@@ -178,13 +181,15 @@ private:
   short readShort(int idx);
   float readFloat(int idx);
   long readLong(int idx);
-  ////
+  //////////////////////////////////////////
   void playTone(int pin, int hz, int ms);
   void noTone(int pin);
-  ///
-  void runModule(int device);
+  //////////////////////////////////////////
+  void runFunction(int device);
   int searchServoPin(int pin);
   void readSensor(int device);
+  //////////////////////////////////////////
+  void EEPROM_writeInt(int address,uint16_t value);
+  uint16_t EEPROM_readInt(int address);
 };
-
 #endif 

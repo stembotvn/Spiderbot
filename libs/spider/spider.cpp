@@ -4,7 +4,8 @@
 //#include "IRremote.h"
 
 void spider::init()
-{
+{ 
+
   pinMode(SET, INPUT_PULLUP);
   pinMode(buzzer, OUTPUT);
   pinMode(Trig, OUTPUT);
@@ -24,22 +25,33 @@ void spider::init()
    Serial.print("Guit Start, address: ");
    Serial.println(myNode); 
    #endif 
+   sing(S_connection); 
 }
 void spider::initNRF()
 {
-//load_address();
+//config_Address(2,10);  
+load_address();
 Radio.init(myNode);    //init with my Node address
-//network.begin(108,nodeAddress);
-  first_run = true;      //set first run for next State
+ first_run = true;      //set first run for next State
 
 }
 ////
+
+////
 void spider::load_address()
 { 
-  if (myNode=255) myNode = 2; 
-  else  myNode = EEPROM.read(0);
-  Serial.print("Address: ");
+   #ifdef DEBUG
+   Serial.println("Loading my Config... ");
+   #endif
+   myNode = EEPROM_readInt(0);
+   toNode = EEPROM_readInt(2);
+   #ifdef DEBUG
+  Serial.print("My Address: ");
   Serial.println(myNode);
+    #endif
+
+ // Radio.init(myNode);    //init with my Node address
+
 }
 /////
 
@@ -350,7 +362,7 @@ void spider::turnleft(int late)
   _knee3.write(140);
   delay(late);
   _hip2.write(120);
-  _hip3.write(120);
+  _hip3.write(120);  
   _hip1.write(60);
   _hip4.write(60);
   delay(late);
@@ -401,16 +413,14 @@ if ( Radio.RFDataCome() )  {
     Serial.println("RF data come!");
 
     while (Radio.RFDataCome()) {
-  //RF24NetworkHeader header;
- // network.peek(header);
-//  if(header.type == 'T'){
+
     RFread_size = Radio.RFRead(buffer);
     isAvailable = true; 
     if (RFread_size <3) return; 
     else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 2)){
       
        #ifdef DEBUG 
-    Serial.print("received valid data: ");
+    Serial.print("received valid Scratch RF data: ");
     PrintDebug(buffer,RFread_size+2);
     Serial.println();
    #endif 
@@ -426,6 +436,11 @@ if ( Radio.RFDataCome() )  {
    }
   
  }
+else {
+  inConfig(); //if not receive RF data, check the config key 
+  //State = IN_CONFIG;    //if not received RF message, go to check config mode access
+  //first_run = true; 
+  } 
 }
 ////
 void spider::PrintDebug(unsigned char *buf,int len){
@@ -445,6 +460,7 @@ Robot to mBlock (Response Get action) /////////////
 ff 55 idx Type  data  0xa  0xd
 0  1   2    3     4 
 */
+////////////////////////////////////////////////////
 void spider::parseData()
 { 
   ind = 0; //reset RF_buffer (send) index
@@ -466,11 +482,18 @@ void spider::parseData()
 
      }
      break;
-     case RUN:{
-       runModule(device);
+     case RUN:{ //need DEBUG Here
+       runFunction(device);
+       if (Mode == CONFIG_MODE) { 
+         Mode = RUN_MODE;
+         State = READ_RF;
+         first_run = true; 
+         }
+       else  {  
        callOK();
        State = WRITE_RF;
-      first_run = true;      //set first run for next State
+      first_run = true; }     //set first run for next State
+       clearBuffer(buffer,20);  
 
      }
       break;
@@ -489,7 +512,10 @@ if (OK) {
    #endif 
   }
 else {
-
+  #ifdef DEBUG 
+    Serial.println("Sent FAIL ");
+   
+   #endif 
  }  
 ind = 0; 
 State = READ_RF; 
@@ -502,46 +528,73 @@ void spider::RC_Run(){
 
 }
 /////
-void spider::setAddress()
+void spider::inConfig() //check if press CONFIG KEY
 {
+  uint8_t size;
+  long _duration=0;
+  bool accessed = false;
   if(!digitalRead(SET))
   {
-    Serial.println("Set Address");
+    #ifdef DEBUG
+    Serial.println("CONFIG KEY PRESSED!");
     Serial.println("Wait 5s...");
+    #endif 
     _startTime = millis();
-    while(!digitalRead(SET));
-    _duration = millis() - _startTime;
-    if(_duration > 5000)
-    {
-      Radio.SetAddress(Default_Addr);
-
-      Serial.println("Ready to receive new address...");
-      for(unsigned long starts = millis(); (millis() - starts) < _timeout;)
-      { 
-        //network.update(); 
-         
-        while(Radio.RFDataCome())
-        { 
-       
-          Radio.RFRead(&new_addr);
-          EEPROM.write(0,new_addr);
-          myNode = new_addr; 
-          Radio.SetAddress(myNode);       
-          Serial.print("Set address done:"); Serial.println(myNode);
-          tick(3,1000,200);
-          break;
-          
-        }
+    while(!digitalRead(SET)) {
+    _duration = millis() - _startTime; 
+      if(_duration > 5000) {
+        accessed = true; 
+        sing(S_buttonPushed);
       }
-    }
+    }    // wait to check holding key timing
+    if(accessed)
+    { 
+      Radio.init(Default_Addr);  // set Default Address to listen for Config Address Mode 
+      #ifdef DEBUG
+      Serial.print("GOING TO CONFIG MODE WITH DEFAULT CONFIG ADDRESS...:");Serial.println(Default_Addr);
+      #endif 
+      Mode = CONFIG_MODE; 
+      accessed = false; 
+     }
     else
     {
-      Serial.println("No change of address.");
-      tick(1,1000,1000);
+      #ifdef DEBUG
+      Serial.println("CONFIG MODE IS NOT ACCESSED!");
+      #endif 
+     // tick(1,1000,1000);
+     sing(S_disconnection);
     }
 
   }
-  State = READ_RF;//back to wait RF message
+ // State = READ_RF; //back to wait RF message
+ // Mode = CONFIG_MODE; 
+//  first_run = true; 
+}
+////////////////
+void spider::config_Address(uint16_t myAddress,uint16_t toAddress){
+
+          myNode = myAddress;   //need be checked endianess
+          toNode = toAddress;  
+          #ifdef DEBUG
+          Serial.println("Receive New addressing!");    
+          Serial.print("My new Address:"); Serial.println(myNode);
+          Serial.print("Sending to Address:"); Serial.println(toNode);
+          #endif        
+          EEPROM_writeInt(0,myNode);  //saving my new address
+          EEPROM_writeInt(2,toNode);    //saving target address
+          #ifdef DEBUG
+          Serial.print("Set address to RF:"); Serial.println(myNode);
+          #endif
+         // myNode = new_addr; 
+          //Radio.SetAddress(myNode); 
+          
+          Radio.init(myNode);    //init with my Node address
+      
+          #ifdef DEBUG
+          Serial.print("Set address done:"); Serial.println(myNode);
+          #endif
+         // tick(3,1000,200);
+                 
 }
 /////////////////
 void spider::run(){
@@ -555,7 +608,7 @@ void spider::run(){
    first_run = false; 
 }  
  switch  (State) {
-   case READ_RF: {
+   case READ_RF: {     //check and read RF data comming if any, if not, go to check setting Address mode
    readRF();
    }
    break;
@@ -571,13 +624,37 @@ void spider::run(){
    RC_Run();
    }
    break;
-   case SET_ADDR: {
- //  setAddress();
-   }
-   break; 
+  
  }
 }
+//////////////////////////////////////////
+void spider::EEPROM_writeInt(int address,uint16_t value) {
+  
+      //Decomposition from a int to 2 bytes by using bitshift.
+      //One = Most significant -> Two = Least significant byte
+      byte two = (value & 0xFF);
+      byte one = ((value >> 8) & 0xFF);
+      
+
+      //Write the 2 bytes into the eeprom memory.
+      EEPROM.write(address, two);
+      EEPROM.write(address + 1, one);
+     
+     
+}
+/////////////////////////
+uint16_t spider::EEPROM_readInt(int address){
+uint16_t two = EEPROM.read(address);
+uint16_t one = EEPROM.read(address+1); 
+return ((two & 0xFF) + ((one<<8)&0xFFFF));
+}
 ///////////////////////////
+void spider::clearBuffer(unsigned char *buf, int leng){
+  for (int i=0;i<=leng;i++) {
+    *(buf+i) = 0; 
+  }
+}
+
 //Private method for data package
 void spider::writeHead(){
   ind = 0;
@@ -684,7 +761,7 @@ void spider::noTone(int pin)
   pinMode(buzzer_pin, OUTPUT);
   digitalWrite(buzzer_pin, LOW);
 }
-void spider::runModule(int device)
+void spider::runFunction(int device)
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
   int port = buffer[6];
@@ -819,6 +896,18 @@ void spider::runModule(int device)
       stand3();
     }
     break;
+
+    case CONFIG:
+    {
+      if (Mode = CONFIG_MODE) {
+      uint16_t myAddress = readShort(6);
+      uint16_t toAddress = readShort(8);
+      config_Address(myAddress,toAddress); //saving new addressing pair
+      sing(S_connection);
+      // Mode = RUN_MODE;
+     // init(); //reset 
+      }
+    }break;
    ///////////////////////////
   }
 }
