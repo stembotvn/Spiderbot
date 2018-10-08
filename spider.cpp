@@ -490,11 +490,11 @@ void spider::parseData()
          first_run = true; 
          }
        else  {  
-       callOK();
+       callOK();   //response OK when complete action
        State = WRITE_RF;
-      first_run = true; }     //set first run for next State
-       clearBuffer(buffer,20);  
-
+       first_run = true;   //set first run for next State
+         }    
+       clearBuffer(buffer,20);  //clear 20byte of receiving buffers 
      }
       break;
      
@@ -502,7 +502,6 @@ void spider::parseData()
 }
 ///////////
 void spider::writeRF() {
-//RF24NetworkHeader header(MASTER_NODE,'T'); //marking data stream is PC/Robot
 bool OK = Radio.RFSend(toNode,RF_buf,ind+1);
 if (OK) {
    #ifdef DEBUG 
@@ -602,8 +601,8 @@ void spider::run(){
    timeStart = millis();
    #ifdef DEBUG 
          Serial.print("State No: ");
-         Serial.println(State);
-         Serial.println(" Begin");
+         Serial.print(State);
+         Serial.println("   Running");
    #endif
    first_run = false; 
 }  
@@ -905,7 +904,7 @@ void spider::runFunction(int device)
       config_Address(myAddress,toAddress); //saving new addressing pair
       sing(S_connection);
       // Mode = RUN_MODE;
-     // init(); //reset 
+   
       }
     }break;
    ///////////////////////////
@@ -954,34 +953,46 @@ void spider::readSensor(int device)
       sendFloat(analogRead(pin));
     }
     break;
-    case  PULSEIN:
-    {
-      int pw = readShort(7);
-      pinMode(pin, INPUT);
-      sendShort(pulseIn(pin,HIGH,pw));
-    }
-    break;
-    case ULTRASONIC_ARDUINO:
-    {
-      int trig = readBuffer(6);
-      int echo = readBuffer(7);
-      pinMode(trig,OUTPUT);
-      digitalWrite(trig,LOW);
-      delayMicroseconds(2);
-      digitalWrite(trig,HIGH);
-      delayMicroseconds(10);
-      digitalWrite(trig,LOW);
-      pinMode(echo, INPUT);
-      sendFloat(pulseIn(echo,HIGH,30000)/58.0);
-    }
-    break;
     case TIMER:
     {
       sendFloat((float)currentTime);
     }
     break;
+
+    case DISTANCE:
+    {
+      sendFloat((float)getDistance());
+    }
+    break;
+
+    case LIGHT_LEVEL:
+    {
+     uint8_t side = readBuffer(6); 
+     sendFloat((float)getLight(side));
+    }
+    break;
   } 
 }
+///////////////////////////////////////////////
+ float spider::getDistance(){
+  return SR04.Ranging(CM);
+ }
+ //////////////////////////////////////////////
+int spider::getLight(byte side){
+ if (!side) {  //LEFT
+  int LDRL = analogRead(LDR2);
+  LDRL = map(LDRL,0,800,0,100);
+  LDRL = LDRL > 100 ? 100 : LDRL;
+  return LDRL;
+ } 
+ else {
+  int LDRR = analogRead(LDR1);
+  LDRR = map(LDRR,0,800,0,100);
+  LDRR = LDRR > 100 ? 100 : LDRR;
+  return LDRR;
+ }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void spider::_tone(float noteFrequency, long noteDuration, int silentDuration)
 {
   if(silentDuration==0)

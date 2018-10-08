@@ -21,6 +21,7 @@ http://stembot.vn
 #include <EEPROM.h>
 #include <Servo.h>
 #include "Sounds.h"
+#include "EasySonar.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -45,8 +46,8 @@ http://stembot.vn
 #define CE_PIN    A2
 #define CSN_PIN   A3
 #define SET       A4
-#define LDR1      A6
-#define LDR2      A7
+#define LDR1      A6  
+#define LDR2      A7 
 ////////define State 
 #define READ_RF   0
 #define PARSING   1
@@ -91,6 +92,8 @@ public:
   void _tone (float noteFrequency, long noteDuration, int silentDuration);
   void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
   void sing(int songName);
+  float  getDistance();        //get Distance in CM
+  int  getLight(byte side);  // get Light  level in %
   ///State Function/////
   void config_Address(uint16_t myaddress,uint16_t toAddress);
   void readRF();
@@ -112,11 +115,10 @@ private:
 	Servo _hip4;
 	Servo _knee4;
   Servo servos[8];
+  EasySonar SR04 = EasySonar(Trig,Echo);
   double timeStart; 
   uint16_t myNode = 2; 
   uint16_t toNode;
- // byte _readAdd;
- // byte _address;
   uint16_t new_addr; 
   uint16_t  Default_Addr = 1000;
   bool first_run = true;
