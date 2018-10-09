@@ -51,10 +51,12 @@ Define of ID function for Scratch interface
 #define STAND2 68
 #define STAND3 69
 #define SING 70
+///////GET////////
 #define DISTANCE 71
 #define LIGHT_LEVEL 72
 ////////////////////////
 #define CONFIG 80 
+#define ACTION 81
 
 #define GET 1
 #define RUN 2

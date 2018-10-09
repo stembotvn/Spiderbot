@@ -404,6 +404,54 @@ void spider::tick(int n, uint16_t frequency, int times)
     delay(times);
   }
 }
+///
+void spider::rest(){
+
+}
+/////////
+void spider::move(int type,int speed) {
+  {
+      switch(type)
+      { 
+        case 0:
+           {
+          rest();
+          break;
+        }
+        case 1:
+        {
+          forward(speed);
+          break;
+        }
+        case 2:
+        {
+          backward(speed);
+          break;
+        }
+        case 3:
+        {
+          turnleft(speed);
+          break;
+        }
+        case 4:
+        {
+          turnright(speed);
+          break;
+        }
+      }
+    }
+}
+////
+void spider::action(int types,int speed){
+switch (types) {
+  case 0 : {
+
+    } break;
+  case 1 : {
+
+    } break;   
+  }
+}
 ////
 void spider::readRF(){
 //network.update(); 
@@ -417,11 +465,11 @@ if ( Radio.RFDataCome() )  {
     RFread_size = Radio.RFRead(buffer);
     isAvailable = true; 
     if (RFread_size <3) return; 
-    else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 2)){
+    else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 3)){
       
        #ifdef DEBUG 
     Serial.print("received valid Scratch RF data: ");
-    PrintDebug(buffer,RFread_size+2);
+    PrintDebug(buffer,RFread_size);
     Serial.println();
    #endif 
      State = PARSING;
@@ -446,7 +494,7 @@ else {
 void spider::PrintDebug(unsigned char *buf,int len){
   for (int i=0;i<len;i++)
     {
-      Serial.print(*(buf+i)); Serial.print("-");
+      Serial.print(*(buf+i),HEX); Serial.print("-");
     }
     Serial.println();
 }
@@ -895,7 +943,11 @@ void spider::runFunction(int device)
       stand3();
     }
     break;
-
+   case ACTION:
+    {
+      stand3();
+    }
+    break;
     case CONFIG:
     {
       if (Mode = CONFIG_MODE) {
