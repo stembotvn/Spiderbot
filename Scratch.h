@@ -54,9 +54,13 @@ Define of ID function for Scratch interface
 ///////GET////////
 #define DISTANCE 71
 #define LIGHT_LEVEL 72
+#define ACTION 73
+
 ////////////////////////
 #define CONFIG 80 
-#define ACTION 81
+///////////////////////
+#define RCDATA 90
+
 
 #define GET 1
 #define RUN 2

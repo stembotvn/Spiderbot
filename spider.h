@@ -59,6 +59,7 @@ http://stembot.vn
 ///define for operation Mode
 #define RUN_MODE 0
 #define CONFIG_MODE 1
+#define RC_MODE 2
 ///
 #define MASTER_NODE 0
 class spider 
@@ -106,8 +107,11 @@ public:
   void run();
   ////
   void PrintDebug(unsigned char *buf,int len);
+  void remoteProcessing();
   ///
   int State = 0; 
+  uint8_t keyState = 0;
+  uint8_t varSlide = 0;
 private:
   Servo _hip1;
 	Servo _knee1;
@@ -124,6 +128,7 @@ private:
   uint16_t toNode;
   uint16_t new_addr; 
   uint16_t  Default_Addr = 1000;
+  uint16_t  Multicast_Node = 255;
   bool first_run = true;
   uint8_t Mode = RUN_MODE; 
   int _Add[1];
@@ -132,8 +137,6 @@ private:
   int  RFread_size; 
   bool _readDone = false; 
   char _buffer[64];
-	int _sofar;
-	int _count;
 	bool  isAvailable = false;
   bool isStart=false;
   unsigned char prevc=0;

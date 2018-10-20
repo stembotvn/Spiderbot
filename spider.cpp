@@ -537,6 +537,11 @@ void spider::parseData()
          State = READ_RF;
          first_run = true; 
          }
+       else if (Mode = RC_MODE) {
+         Mode = RUN_MODE;
+         State = READ_RF;
+         first_run = true; 
+       }  
        else  {  
        callOK();   //response OK when complete action
        State = WRITE_RF;
@@ -584,12 +589,12 @@ void spider::inConfig() //check if press CONFIG KEY
   {
     #ifdef DEBUG
     Serial.println("CONFIG KEY PRESSED!");
-    Serial.println("Wait 5s...");
+    Serial.println("Wait 3s...");
     #endif 
     _startTime = millis();
     while(!digitalRead(SET)) {
     _duration = millis() - _startTime; 
-      if(_duration > 5000) {
+      if(_duration > 3000) {
         accessed = true; 
         sing(S_buttonPushed);
       }
@@ -626,9 +631,11 @@ void spider::config_Address(uint16_t myAddress,uint16_t toAddress){
           Serial.println("Receive New addressing!");    
           Serial.print("My new Address:"); Serial.println(myNode);
           Serial.print("Sending to Address:"); Serial.println(toNode);
-          #endif        
+          #endif 
+          if (toNode!=0) {   // not in Network mode, do not save     
           EEPROM_writeInt(0,myNode);  //saving my new address
           EEPROM_writeInt(2,toNode);    //saving target address
+          }
           #ifdef DEBUG
           Serial.print("Set address to RF:"); Serial.println(myNode);
           #endif
@@ -815,53 +822,7 @@ void spider::runFunction(int device)
   int pin = port;
   switch(device)
   {
-    case DIGITAL:
-    {
-      pinMode(pin,OUTPUT);
-      int v = readBuffer(7);
-      digitalWrite(pin,v);
-    }
-    break;
-    case PWM:
-    {
-      pinMode(pin,OUTPUT);
-      int v = readBuffer(7);
-      analogWrite(pin,v);
-    }
-    break;
-    case TONE:
-    {
-      pinMode(pin,OUTPUT);
-      int hz = readShort(7);
-      int ms = readShort(9);
-      if(ms>0){
-        playTone(pin, hz, ms); 
-      }
-      else
-      {
-        noTone(pin); 
-      }
-    }
-    break;
-    case SERVO_PIN:
-    {
-      int v = readBuffer(7);
-      Servo sv = servos[searchServoPin(pin)]; 
-      if(v >= 0 && v <= 180)
-      {
-        if(!sv.attached())
-        {
-          sv.attach(pin);
-        }
-        sv.write(v);
-      }
-    }
-    break;
-    case TIMER:
-    {
-      lastTime = millis()/1000.0; 
-    }
-    break;
+       
    /////////////////////////
     case RUN_SPIDER:
     {
@@ -959,25 +920,33 @@ void spider::runFunction(int device)
    
       }
     }break;
+
+    case RCDATA:
+    {
+      Mode = RC_MODE; 
+      keyState = buffer[6];
+      varSlide = buffer[7];
+      if (keyState!=0) {  //when press; 
+      remoteProcessing();      
+      }
+    }break;
    ///////////////////////////
   }
 }
-int spider::searchServoPin(int pin)
-{
-  for(int i=0;i<8;i++)
-  {
-      if(servo_pins[i] == pin)
-      {
-        return i;
-      }
-      if(servo_pins[i]==0)
-      {
-        servo_pins[i] = pin;
-        return i;
-      }
-    }
-    return 0;
-}
+/////////////
+void spider::remoteProcessing(){
+  ////////////////////////////////////////////////
+  ///keyState  7  6  5  4  3  2  1   0        ////
+  ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
+  ////////////////////////////////////////////////       
+if (bitRead(keyState,0)) {
+
+ } 
+
+
+
+}     
+// /////////////
 void spider::readSensor(int device)
 {
   /*****************Recevice*************************
