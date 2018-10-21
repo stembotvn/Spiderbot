@@ -60,7 +60,11 @@ http://stembot.vn
 #define RUN_MODE 0
 #define CONFIG_MODE 1
 #define RC_MODE 2
-///
+////////////////////////////
+#define RC_MANUAL  0
+#define LIGHT_FOLLOW    1
+#define AVOID_OBSTACLE 2
+////
 #define MASTER_NODE 0
 class spider 
 {
@@ -112,6 +116,7 @@ public:
   int State = 0; 
   uint8_t keyState = 0;
   uint8_t varSlide = 0;
+  uint8_t RC_type = RC_MANUAL;
 private:
   Servo _hip1;
 	Servo _knee1;
@@ -124,6 +129,7 @@ private:
   Servo servos[8];
   EasySonar SR04 = EasySonar(Trig,Echo);
   double timeStart; 
+  int speed = 70;
   uint16_t myNode = 2; 
   uint16_t toNode;
   uint16_t new_addr; 

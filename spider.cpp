@@ -488,6 +488,7 @@ else {
   inConfig(); //if not receive RF data, check the config key 
   //State = IN_CONFIG;    //if not received RF message, go to check config mode access
   //first_run = true; 
+  if (Mode == RC_MODE && RC_type != RC_MANUAL) { State = RC; }
   } 
 }
 ////
@@ -526,21 +527,23 @@ void spider::parseData()
         readSensor(device);
         writeEnd();
         State = WRITE_RF;
-          first_run = true;      //set first run for next State
+        first_run = true;      //set first run for next State
 
      }
      break;
      case RUN:{ //need DEBUG Here
        runFunction(device);
-       if (Mode == CONFIG_MODE) { 
-         Mode = RUN_MODE;
+       if (device == CONFIG) { 
+         if (Mode == CONFIG_MODE) Mode = RUN_MODE;
          State = READ_RF;
          first_run = true; 
          }
-       else if (Mode = RC_MODE) {
-         Mode = RUN_MODE;
-         State = READ_RF;
-         first_run = true; 
+       else if (device == RCDATA) {
+          if (RC_type != RC_MANUAL) { 
+              State = RC; 
+
+          }
+          first_run = true; 
        }  
        else  {  
        callOK();   //response OK when complete action
@@ -577,7 +580,25 @@ State = READ_RF;
 }
 /////////
 void spider::RC_Run(){
+switch (RC_type){ 
+  case LIGHT_FOLLOW: {
+     
+   } break;
 
+   case AVOID_OBSTACLE: {
+     int distance = getDistance();
+     if (distance > 15) forward(speed); 
+     else { 
+       turnleft(speed); 
+       if (getDistance()<15) turnright(speed);
+         
+        
+     }
+    } break;
+
+
+  }
+ State = READ_RF; 
 }
 /////
 void spider::inConfig() //check if press CONFIG KEY
@@ -681,140 +702,7 @@ void spider::run(){
   
  }
 }
-//////////////////////////////////////////
-void spider::EEPROM_writeInt(int address,uint16_t value) {
-  
-      //Decomposition from a int to 2 bytes by using bitshift.
-      //One = Most significant -> Two = Least significant byte
-      byte two = (value & 0xFF);
-      byte one = ((value >> 8) & 0xFF);
-      
 
-      //Write the 2 bytes into the eeprom memory.
-      EEPROM.write(address, two);
-      EEPROM.write(address + 1, one);
-     
-     
-}
-/////////////////////////
-uint16_t spider::EEPROM_readInt(int address){
-uint16_t two = EEPROM.read(address);
-uint16_t one = EEPROM.read(address+1); 
-return ((two & 0xFF) + ((one<<8)&0xFFFF));
-}
-///////////////////////////
-void spider::clearBuffer(unsigned char *buf, int leng){
-  for (int i=0;i<=leng;i++) {
-    *(buf+i) = 0; 
-  }
-}
-
-//Private method for data package
-void spider::writeHead(){
-  ind = 0;
-  RF_buf[ind++]=0xff;
-  RF_buf[ind++]=0x55;
-}
-void spider::writeEnd(){
-RF_buf[ind++] = 0xd; 
-RF_buf[ind] = 0xa; 
-}
-
-unsigned char spider::readBuffer(int index){    
-  return buffer[index]; 
-}
-void spider::writeBuffer(int index,unsigned char c)
-{
-  RF_buf[index]=c;
-}
-void spider::callOK()
-{ ind = 0;
-  writeBuffer(ind++,0xff);
-  writeBuffer(ind++,0x55);
-  writeEnd();
-}
-void spider::sendByte(char c)
-{
-  writeBuffer(ind++,1);
-  writeBuffer(ind++,c);
-}
-void spider::sendString(String s)
-{
-  int l = s.length();
-  writeBuffer(ind++,4);
-  writeBuffer(ind++,l);
-  for(int i=0;i<l;i++)
-  {
-    writeBuffer(ind++,s.charAt(i));
-  }
-}
-void spider::sendFloat(float value)
-{
-  writeBuffer(ind++,0x2);
-  val.floatVal = value;
-  writeBuffer(ind++,val.byteVal[0]);
-  writeBuffer(ind++,val.byteVal[1]);
-  writeBuffer(ind++,val.byteVal[2]);
-  writeBuffer(ind++,val.byteVal[3]);
-}
-void spider::sendShort(double value)
-{
-  writeBuffer(ind++,3);
-  valShort.shortVal = value;
-  writeBuffer(ind++,valShort.byteVal[0]);
-  writeBuffer(ind++,valShort.byteVal[1]);
-}
-void spider::sendDouble(double value)
-{
-  writeBuffer(ind++,2);
-  valDouble.doubleVal = value;
-  writeBuffer(ind++,valDouble.byteVal[0]);
-  writeBuffer(ind++,valDouble.byteVal[1]);
-  writeBuffer(ind++,valDouble.byteVal[2]);
-  writeBuffer(ind++,valDouble.byteVal[3]);
-}
-short spider::readShort(int idx)
-{
-  valShort.byteVal[0] = readBuffer(idx);
-  valShort.byteVal[1] = readBuffer(idx+1);
-  return valShort.shortVal;
-}
-float spider::readFloat(int idx)
-{
-  val.byteVal[0] = readBuffer(idx);
-  val.byteVal[1] = readBuffer(idx+1);
-  val.byteVal[2] = readBuffer(idx+2);
-  val.byteVal[3] = readBuffer(idx+3);
-  return val.floatVal;
-}
-long spider::readLong(int idx)
-{
-  val.byteVal[0] = readBuffer(idx);
-  val.byteVal[1] = readBuffer(idx+1);
-  val.byteVal[2] = readBuffer(idx+2);
-  val.byteVal[3] = readBuffer(idx+3);
-  return val.longVal;
-}
-void spider::playTone(int pin, int hz, int ms)
-{
-  int buzzer_pin = pin;
-  int period = 1000000L / hz;
-  int pulse = period / 2;
-  pinMode(buzzer_pin, OUTPUT);
-  for (long i = 0; i < ms * 1000L; i += period) 
-  {
-    digitalWrite(buzzer_pin, HIGH);
-    delayMicroseconds(pulse);
-    digitalWrite(buzzer_pin, LOW);
-    delayMicroseconds(pulse);
-   }
-}
-void spider::noTone(int pin)
-{
-  int buzzer_pin = pin;
-  pinMode(buzzer_pin, OUTPUT);
-  digitalWrite(buzzer_pin, LOW);
-}
 void spider::runFunction(int device)
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
@@ -851,62 +739,76 @@ void spider::runFunction(int device)
           break;
         }
       }
+    Mode = RUN_MODE;
+ 
     }
     break;
     case SLEEP:
     {
       int v = readShort(6);
       sleep(v);
+      Mode = RUN_MODE;
+
     }
     break;
     case STANDUP:
     {
       int v = readShort(6);
       standUp(v);
+      Mode = RUN_MODE;
+
     }
     break;
     case LAYDOWN:
     {
       int v = readShort(6);
       layDown(v);
+      Mode = RUN_MODE;
     }
     break;
     case DANCE:
     {
       int v = readShort(6);
       start(v);
+      Mode = RUN_MODE;
     }
     break;
     case HELLO:
     {
       int v = readShort(6);
       hello(v);
+      Mode = RUN_MODE;
     }
     break;
     case EXERCISE:
     {
       int v = readShort(6);
       exercise(v);
+      Mode = RUN_MODE;
     }
     break;
     case STAND1:
     {
       stand1();
+      Mode = RUN_MODE;
     }
     break;
     case STAND2:
     {
       stand2();
+      Mode = RUN_MODE;
     }
     break;
     case STAND3:
     {
       stand3();
+      Mode = RUN_MODE;
     }
     break;
    case ACTION:
     {
       stand3();
+      Mode = RUN_MODE;
     }
     break;
     case CONFIG:
@@ -929,6 +831,7 @@ void spider::runFunction(int device)
       if (keyState!=0) {  //when press; 
       remoteProcessing();      
       }
+      else stand3();
     }break;
    ///////////////////////////
   }
@@ -938,13 +841,44 @@ void spider::remoteProcessing(){
   ////////////////////////////////////////////////
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
-  ////////////////////////////////////////////////       
-if (bitRead(keyState,0)) {
-
+  ////////////////////////////////////////////////
+ speed = map(varSlide,0,100,150,50); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+if (bitRead(keyState,0)) {  //forward
+  forward(speed);
+  RC_type = RC_MANUAL;
  } 
+else if (bitRead(keyState,1)) {
+ backward(speed); 
+   RC_type = RC_MANUAL;
 
+}
+else if (bitRead(keyState,2)) {
+ turnright(speed);
+   RC_type = RC_MANUAL;
 
+}
+else if (bitRead(keyState,3)) {
+ turnleft(speed); 
+   RC_type = RC_MANUAL;
 
+} 
+
+if (bitRead(keyState,4)) {   //F1 key press
+  
+}
+else if (bitRead(keyState,5)) {  //F2 key press
+
+}
+else if (bitRead(keyState,6)) {  //F3 key press
+    ///avoid obstacle
+   RC_type  = AVOID_OBSTACLE; 
+   //State = RC; 
+}
+else if (bitRead(keyState,7)) {  //F4 key press
+    ///light follow
+      RC_type  = LIGHT_FOLLOW; 
+    //  State = RC;
+}
 }     
 // /////////////
 void spider::readSensor(int device)
@@ -1132,4 +1066,140 @@ void spider::sing(int songName)
       bendTones(4000, 3000, 1.02, 2, 20);
       break;
   }
+}
+////
+//////////////////////////////////////////
+void spider::EEPROM_writeInt(int address,uint16_t value) {
+  
+      //Decomposition from a int to 2 bytes by using bitshift.
+      //One = Most significant -> Two = Least significant byte
+      byte two = (value & 0xFF);
+      byte one = ((value >> 8) & 0xFF);
+      
+
+      //Write the 2 bytes into the eeprom memory.
+      EEPROM.write(address, two);
+      EEPROM.write(address + 1, one);
+     
+     
+}
+/////////////////////////
+uint16_t spider::EEPROM_readInt(int address){
+uint16_t two = EEPROM.read(address);
+uint16_t one = EEPROM.read(address+1); 
+return ((two & 0xFF) + ((one<<8)&0xFFFF));
+}
+///////////////////////////
+void spider::clearBuffer(unsigned char *buf, int leng){
+  for (int i=0;i<=leng;i++) {
+    *(buf+i) = 0; 
+  }
+}
+
+//Private method for data package
+void spider::writeHead(){
+  ind = 0;
+  RF_buf[ind++]=0xff;
+  RF_buf[ind++]=0x55;
+}
+void spider::writeEnd(){
+RF_buf[ind++] = 0xd; 
+RF_buf[ind] = 0xa; 
+}
+
+unsigned char spider::readBuffer(int index){    
+  return buffer[index]; 
+}
+void spider::writeBuffer(int index,unsigned char c)
+{
+  RF_buf[index]=c;
+}
+void spider::callOK()
+{ ind = 0;
+  writeBuffer(ind++,0xff);
+  writeBuffer(ind++,0x55);
+  writeEnd();
+}
+void spider::sendByte(char c)
+{
+  writeBuffer(ind++,1);
+  writeBuffer(ind++,c);
+}
+void spider::sendString(String s)
+{
+  int l = s.length();
+  writeBuffer(ind++,4);
+  writeBuffer(ind++,l);
+  for(int i=0;i<l;i++)
+  {
+    writeBuffer(ind++,s.charAt(i));
+  }
+}
+void spider::sendFloat(float value)
+{
+  writeBuffer(ind++,0x2);
+  val.floatVal = value;
+  writeBuffer(ind++,val.byteVal[0]);
+  writeBuffer(ind++,val.byteVal[1]);
+  writeBuffer(ind++,val.byteVal[2]);
+  writeBuffer(ind++,val.byteVal[3]);
+}
+void spider::sendShort(double value)
+{
+  writeBuffer(ind++,3);
+  valShort.shortVal = value;
+  writeBuffer(ind++,valShort.byteVal[0]);
+  writeBuffer(ind++,valShort.byteVal[1]);
+}
+void spider::sendDouble(double value)
+{
+  writeBuffer(ind++,2);
+  valDouble.doubleVal = value;
+  writeBuffer(ind++,valDouble.byteVal[0]);
+  writeBuffer(ind++,valDouble.byteVal[1]);
+  writeBuffer(ind++,valDouble.byteVal[2]);
+  writeBuffer(ind++,valDouble.byteVal[3]);
+}
+short spider::readShort(int idx)
+{
+  valShort.byteVal[0] = readBuffer(idx);
+  valShort.byteVal[1] = readBuffer(idx+1);
+  return valShort.shortVal;
+}
+
+float spider::readFloat(int idx)
+{
+  val.byteVal[0] = readBuffer(idx);
+  val.byteVal[1] = readBuffer(idx+1);
+  val.byteVal[2] = readBuffer(idx+2);
+  val.byteVal[3] = readBuffer(idx+3);
+  return val.floatVal;
+}
+long spider::readLong(int idx)
+{
+  val.byteVal[0] = readBuffer(idx);
+  val.byteVal[1] = readBuffer(idx+1);
+  val.byteVal[2] = readBuffer(idx+2);
+  val.byteVal[3] = readBuffer(idx+3);
+  return val.longVal;
+}
+void spider::playTone(int pin, int hz, int ms)
+{
+  int buzzer_pin = pin;
+  int period = 1000000L / hz;
+  int pulse = period / 2;
+  pinMode(buzzer_pin, OUTPUT);
+  for (long i = 0; i < ms * 1000L; i += period) 
+  {
+    digitalWrite(buzzer_pin, HIGH);
+    delayMicroseconds(pulse);
+    digitalWrite(buzzer_pin, LOW);
+    delayMicroseconds(pulse);
+   }
+}
+void spider::noTone(int pin)
+{
+  int buzzer_pin = pin;
+  pinMode(buzzer_pin, OUTPUT);
+  digitalWrite(buzzer_pin, LOW);
 }
