@@ -454,7 +454,6 @@ switch (types) {
 }
 ////
 void spider::readRF(){
-//network.update(); 
 RFread_size = 0; 
 
 if ( Radio.RFDataCome() )  {
@@ -488,7 +487,7 @@ else {
   inConfig(); //if not receive RF data, check the config key 
   //State = IN_CONFIG;    //if not received RF message, go to check config mode access
   //first_run = true; 
-  if (Mode == RC_MODE && RC_type != RC_MANUAL) { State = RC; }
+  if (Mode == RC_MODE && RC_type != RC_MANUAL) { State = RC; first_run = true; }
   } 
 }
 ////
@@ -541,8 +540,11 @@ void spider::parseData()
        else if (device == RCDATA) {
           if (RC_type != RC_MANUAL) { 
               State = RC; 
-
+            #ifdef DEBUG 
+            Serial.println("RC Auto Mode, Goto RC State");
+            #endif
           }
+          else State = READ_RF;
           first_run = true; 
        }  
        else  {  
@@ -599,6 +601,7 @@ switch (RC_type){
 
   }
  State = READ_RF; 
+ first_run = true;
 }
 /////
 void spider::inConfig() //check if press CONFIG KEY
