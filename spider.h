@@ -20,8 +20,8 @@ http://stembot.vn
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
-#include "Sounds.h"
 #include "EasySonar.h"
+#include "NegendoSounds.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -97,9 +97,6 @@ public:
 	void turnleft(int late);
   void tones(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
   void tick(int n, uint16_t frequency, int times);
-  void _tone (float noteFrequency, long noteDuration, int silentDuration);
-  void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
-  void sing(int songName);
   float  getDistance();        //get Distance in CM
   int  getLight(byte side);  // get Light  level in %
   ///State Function/////
@@ -117,6 +114,8 @@ public:
   uint8_t keyState = 0;
   uint8_t varSlide = 0;
   uint8_t RC_type = RC_MANUAL;
+
+  NegendoSounds Sound = NegendoSounds(buzzer);
 private:
   Servo _hip1;
 	Servo _knee1;
