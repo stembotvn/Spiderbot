@@ -110,6 +110,10 @@ public:
   void PrintDebug(unsigned char *buf,int len);
   void remoteProcessing();
   ///
+
+  //// angle ////
+  void goAngle(int angle,int speed, Servo theServo);
+  //////////////
   int State = 0; 
   uint8_t keyState = 0;
   uint8_t varSlide = 0;
