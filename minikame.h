@@ -9,7 +9,7 @@ public:
     //MiniKame(){}
     MiniKame (int hip1, int knee1, int hip2, int knee2, int hip3, int knee3, int hip4, int knee4);
     void init();
-    void run(float steps, int period);
+    void runs(float steps, int period);
     void walk(float steps, int period);
     void back(float steps, int period);
     void turnL(float steps, int period);
@@ -17,6 +17,7 @@ public:
     void dance(float steps, int period);
     void upDown(float steps, int period);
     void pushUp(float steps, int period);
+    void hello();
     void home();
     void zero();
 

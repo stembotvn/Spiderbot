@@ -1,16 +1,16 @@
 #include "spider.h"
 
-spider robot;
+spider Guti;
 
 //////////////////////////////////////
 void setup()
 {
-  robot.init();
-  robot.stand1();
+  Guti.init();
+  Guti.Robot.zero();
 }
 ///////////////////////////
 void loop()
 {
-  robot.run();
+  Guti.run();
 }
 

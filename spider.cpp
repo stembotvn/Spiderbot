@@ -1,7 +1,6 @@
 #include <spider.h>
 #include "RF24.h"
 #include <EEPROM.h>
-//#include "IRremote.h"
 
 void spider::init()
 { 
@@ -10,7 +9,7 @@ void spider::init()
   pinMode(buzzer, OUTPUT);
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
-  
+  Robot.init();
    Serial.begin(115200);
    initNRF();
    #ifdef DEBUG
@@ -51,7 +50,7 @@ void spider::rest(){
 
 }
 /////////
-void spider::move(int type,int speed) {
+void spider::move(int type, int step,int speed) {
   {
       switch(type)
       { 
@@ -62,22 +61,22 @@ void spider::move(int type,int speed) {
         }
         case 1:
         {
-          Robot.walk(4, 500);
+          Robot.walk(step, speed);
           break;
         }
         case 2:
         {
-          Robot.back(4, 500);
+          Robot.back(step, speed);
           break;
         }
         case 3:
         {
-          turnleft(speed);
+          Robot.turnL(step,speed);
           break;
         }
         case 4:
         {
-          turnright(speed);
+          Robot.turnR(step,speed);
           break;
         }
       }
@@ -231,10 +230,10 @@ switch (RC_type){
 
    case AVOID_OBSTACLE: {
      int distance = getDistance();
-     if (distance > 15) forward(speed); 
+     if (distance > 15) Robot.walk(4,speed); 
      else { 
-       turnleft(speed); 
-       if (getDistance()<15) turnright(speed);
+       Robot.turnL(4,speed); 
+       if (getDistance()<15) Robot.turnR(4,speed);
          
         
      }
@@ -365,22 +364,22 @@ void spider::runFunction(int device)
       {
         case 1:
         {
-          forward(speed);
+          Robot.walk(4,500);
           break;
         }
         case 2:
         {
-          backward(speed);
+          Robot.back(4,500);
           break;
         }
         case 3:
         {
-          turnleft(speed);
+          Robot.turnL(4,500);
           break;
         }
         case 4:
         {
-          turnright(speed);
+          Robot.turnR(4,500);
           break;
         }
       }
@@ -388,71 +387,56 @@ void spider::runFunction(int device)
  
     }
     break;
-    case SLEEP:
+    case RUN:
     {
       int v = readShort(6);
-      sleep(v);
+      Robot.runs(2,v);
+      Mode = RUN_MODE;
+    }
+    break;
+    case UPDOWN:
+    {
+      int v = readShort(6);
+      Robot.upDown(1,v);
       Mode = RUN_MODE;
 
     }
     break;
-    case STANDUP:
+    case PUSHUP:
     {
       int v = readShort(6);
-      standUp(v);
-      Mode = RUN_MODE;
-
-    }
-    break;
-    case LAYDOWN:
-    {
-      int v = readShort(6);
-      layDown(v);
+      Robot.pushUp(1,v);
       Mode = RUN_MODE;
     }
     break;
     case DANCE:
     {
       int v = readShort(6);
-      start(v);
+      Robot.dance(1,v);
       Mode = RUN_MODE;
     }
     break;
     case HELLO:
     {
-      int v = readShort(6);
-      hello(v);
+      Robot.hello();
       Mode = RUN_MODE;
     }
     break;
-    case EXERCISE:
+    case ZERO:
     {
-      int v = readShort(6);
-      exercise(v);
+      Robot.zero();
       Mode = RUN_MODE;
     }
     break;
-    case STAND1:
+    case HOME:
     {
-      stand1();
-      Mode = RUN_MODE;
-    }
-    break;
-    case STAND2:
-    {
-      stand2();
-      Mode = RUN_MODE;
-    }
-    break;
-    case STAND3:
-    {
-      stand3();
+      Robot.home();
       Mode = RUN_MODE;
     }
     break;
    case ACTION:
     {
-      stand3();
+      Robot.home();
       Mode = RUN_MODE;
     }
     break;
@@ -476,7 +460,7 @@ void spider::runFunction(int device)
       if (keyState!=0) {  //when press; 
       remoteProcessing();      
       }
-      else stand3();
+      else Robot.home();
     }break;
    ///////////////////////////
   }
@@ -487,23 +471,27 @@ void spider::remoteProcessing(){
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
   ////////////////////////////////////////////////
- speed = map(varSlide,0,100,150,50); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+ speed = map(varSlide,0,100,1000,300); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
 if (bitRead(keyState,0)) {  //forward
-  forward(speed);
+  //forward(speed);
+  Robot.walk(4,speed);
   RC_type = RC_MANUAL;
  } 
 else if (bitRead(keyState,1)) {
- backward(speed); 
+  //backward(speed); 
+  Robot.back(4,speed);
    RC_type = RC_MANUAL;
 
 }
 else if (bitRead(keyState,2)) {
- turnright(speed);
+  //turnright(speed);
+  Robot.turnR(4,speed);
    RC_type = RC_MANUAL;
 
 }
 else if (bitRead(keyState,3)) {
- turnleft(speed); 
+  //turnleft(speed);
+  Robot.turnL(4,speed);
    RC_type = RC_MANUAL;
 
 } 

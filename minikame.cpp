@@ -9,8 +9,10 @@ MiniKame::MiniKame(int hip1, int knee1, int hip2, int knee2, int hip3, int knee3
     pin5(hip4),
     pin6(knee3),
     pin7(knee4)
-{
-    ////////////////////////////////
+{}
+
+void MiniKame::init(){
+    // Map between servos and board pins
     board_pins[0] = pin0; // Servo S0
     board_pins[1] = pin1; // Servo S1
     board_pins[2] = pin2; // Servo S2
@@ -40,39 +42,7 @@ MiniKame::MiniKame(int hip1, int knee1, int hip2, int knee2, int hip3, int knee3
     }
     zero();
 }
-/*
-void MiniKame::init(){
-    // Map between servos and board pins
-    board_pins[0] = 3; // Servo S0
-    board_pins[1] = 5; // Servo S1
-    board_pins[2] = 4; // Servo S2
-    board_pins[3] = 6; // Servo S3
-    board_pins[4] = 7; // Servo S4
-    board_pins[5] = 9; // Servo S5
-    board_pins[6] = 8; // Servo S6
-    board_pins[7] = 10; // Servo S7
 
-    // Trim values for zero position calibration.
-    trim[0] = 0;
-    trim[1] = -8;
-    trim[2] = 8;
-    trim[3] = 5;
-    trim[4] = 2;
-    trim[5] = -6;
-    trim[6] = 6;
-    trim[7] = 5;
-
-    // Set reverse movement
-    for (int i=0; i<8; i++) reverse[i] = false;
-
-    // Init an oscillator for each servo
-    for(int i=0; i<8; i++){
-        oscillator[i].start();
-        servo[i].attach(board_pins[i]);
-    }
-    zero();
-}
-*/
 void MiniKame::turnR(float steps, int T=600){
     int x_amp = -15;
     int z_amp = -15;
@@ -112,7 +82,7 @@ void MiniKame::dance(float steps, int T=600){
     execute(steps, period, amplitude, offset, phase);
 }
 
-void MiniKame::run(float steps, int T=5000){
+void MiniKame::runs(float steps, int T=5000){
     int x_amp = -15;
     int z_amp = -15;
     int ap = 15;
@@ -237,6 +207,27 @@ void MiniKame::pushUp(float steps, int T=600){
     int phase[] = {0,0,0,180,0,0,0,180};
 
     execute(steps, period, amplitude, offset, phase);
+}
+
+void MiniKame::hello(){
+    float sentado[]={90+15,90-15,90-65,90+65,90+20,90-20,90+10,90-10};
+    moveServos(150, sentado);
+    delay(200);
+
+    int z_amp = 40;
+    int x_amp = 60;
+    int T=350;
+    int period[] = {T, T, T, T, T, T, T, T};
+    int amplitude[] = {0,50,0,50,0,0,0,0};
+    int offset[] = {90+15,40,90-65,90,90+20,90-20,90+10,90-10};
+    int phase[] = {0,0,0,90,0,0,0,0};
+
+    execute(4, period, amplitude, offset, phase);
+
+    float goingUp[]={160,20,90,90,90-20,90+20,90+10,90-10};
+    moveServos(500, goingUp);
+    delay(200);
+
 }
 
 void MiniKame::home(){

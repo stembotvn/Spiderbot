@@ -80,7 +80,7 @@ public:
   void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
   void inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
 //////Robot Action//////
-  void move(int type,int speed);
+  void move(int type,int step, int speed);
   void action(int type,int t);
   void rest();
 
