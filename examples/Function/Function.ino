@@ -1,6 +1,6 @@
-#include "minikame.h"
+#include "spider.h"
 
-MiniKame Guti;
+spider Guti;
 
 void setup()
 {
@@ -9,6 +9,7 @@ void setup()
 }
 void loop()
 {
+<<<<<<< HEAD
   //Guti.run(2,700);
   //Guti.dance(3,600);
   //delay(5000);
@@ -16,5 +17,8 @@ void loop()
     Guti.run(2,700);
 
   //Guti.home();
+=======
+  Guti.Robot.run(2,500);
+>>>>>>> 0adc6c632803500636e378bff9a3fdc0eafc071b
   //delay(3000);
 }
