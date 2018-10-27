@@ -14,13 +14,13 @@ void MiniKame::init(){
 
     // Trim values for zero position calibration.
     trim[0] = 0;
-    trim[1] = -8;
-    trim[2] = 8;
-    trim[3] = 5;
-    trim[4] = 2;
-    trim[5] = -6;
-    trim[6] = 6;
-    trim[7] = 5;
+    trim[1] = 0;
+    trim[2] = 0;
+    trim[3] = 0;
+    trim[4] = 0;
+    trim[5] = 0;
+    trim[6] = 0;
+    trim[7] = 0;
 
     // Set reverse movement
     for (int i=0; i<8; i++) reverse[i] = false;
@@ -143,11 +143,16 @@ void MiniKame::omniWalk(float steps, int T, bool side, float turn_factor){
 }
 
 void MiniKame::moonwalkL(float steps, int T=5000){
-    int z_amp = -45;
+    int z_amp = 45;
+    int z_amp1 = z_amp;
+    int z_amp2 = 180-z_amp;
+ 
+    int os = 60;
     int period[] = {T, T, T, T, T, T, T, T};
     int amplitude[] = {0,0,z_amp,z_amp,0,0,z_amp,z_amp};
-    int offset[] = {90, 90, 90, 90, 90, 90, 90, 90};
+    int offset[] = {90, 90, os, os, 90, 90, os, os};
     int phase[] = {0,0,0,120,0,0,180,290};
+    //int phase[] = {0,0,120,120,0,0,180,180};
 
     execute(steps, period, amplitude, offset, phase);
 }
