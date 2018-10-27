@@ -22,7 +22,7 @@ http://stembot.vn
 #include <Servo.h>
 #include "EasySonar.h"
 #include "NegendoSounds.h"
-#include "minikame.h"
+#include "motion.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -78,7 +78,7 @@ public:
 	void init();
   void initNRF();
   void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
-  void inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
+  bool inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
 //////Robot Action//////
   void move(int type,int step, int speed);
   void action(int type,int t);
@@ -103,8 +103,7 @@ public:
   uint8_t RC_type = RC_MANUAL;
 
   NegendoSounds Sound = NegendoSounds(buzzer);
-  //MiniKame Robot = MiniKame(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
-  MiniKame Robot = MiniKame(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
+  Motion Robot = Motion(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
 
 private:
   //Servo _hip1;
@@ -184,10 +183,7 @@ private:
   short readShort(int idx);
   float readFloat(int idx);
   long readLong(int idx);
-  //////////////////////////////////////////
-  void playTone(int pin, int hz, int ms);
-  void noTone(int pin);
-  //////////////////////////////////////////
+
   void runFunction(int device);
   int searchServoPin(int pin);
   void readSensor(int device);

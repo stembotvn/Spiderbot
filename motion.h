@@ -1,13 +1,12 @@
-#ifndef minikame_h
-#define minikame_h
+#ifndef motion_h
+#define motion_h
 
 #include <Servo.h>
 #include <Octosnake.h>
 
-class MiniKame{
+class Motion{
 public:
-    //MiniKame(){}
-    MiniKame (int hip1, int knee1, int hip2, int knee2, int hip3, int knee3, int hip4, int knee4);
+    Motion (int hip1, int knee1, int hip2, int knee2, int hip3, int knee3, int hip4, int knee4);
     void init();
     void runs(float steps, int period);
     void walk(float steps, int period);

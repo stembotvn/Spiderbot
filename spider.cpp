@@ -125,10 +125,10 @@ if ( Radio.RFDataCome() )  {
   
  }
 else {
-  inConfig(); //if not receive RF data, check the config key 
+  inConfig();  //if not receive RF data, check the config key 
   //State = IN_CONFIG;    //if not received RF message, go to check config mode access
   //first_run = true; 
-  if (Mode == RC_MODE && RC_type != RC_MANUAL) { State = RC; first_run = true; }
+  if (Mode == RC_MODE && RC_type != RC_MANUAL) { State = RC; first_run = true; } 
   } 
 }
 ////
@@ -173,20 +173,22 @@ void spider::parseData()
      break;
      case RUN:{ //need DEBUG Here
        runFunction(device);
-       if (device == CONFIG) { 
-         if (Mode == CONFIG_MODE) Mode = RUN_MODE;
+       if (Mode == CONFIG_MODE) { 
+         if (device == CONFIG) {
+           Mode = RUN_MODE; //done config, go back to run mode
          State = READ_RF;
-         first_run = true; 
+         first_run = true; }
          }
-       else if (device == RCDATA) {
+       else if (Mode == RC_MODE) {
           if (RC_type != RC_MANUAL) { 
               State = RC; 
             #ifdef DEBUG 
             Serial.println("RC Auto Mode, Goto RC State");
             #endif
           }
-          else State = READ_RF;
-          first_run = true; 
+          else {State = READ_RF; 
+          Mode = RUN_MODE;          
+          first_run = true; }
        }  
        else  {  
        callOK();   //response OK when complete action
@@ -230,10 +232,10 @@ switch (RC_type){
 
    case AVOID_OBSTACLE: {
      int distance = getDistance();
-     if (distance > 15) Robot.walk(4,speed); 
+     if (distance > 15) Robot.walk(2,speed); 
      else { 
-       Robot.turnL(4,speed); 
-       if (getDistance()<15) Robot.turnR(4,speed);
+       Robot.turnL(2,speed); 
+       if (getDistance()<15) Robot.turnR(2,speed);
          
         
      }
@@ -245,7 +247,7 @@ switch (RC_type){
  first_run = true;
 }
 /////
-void spider::inConfig() //check if press CONFIG KEY
+bool spider::inConfig() //check if press CONFIG KEY
 {
   uint8_t size;
   long _duration=0;
@@ -283,6 +285,7 @@ void spider::inConfig() //check if press CONFIG KEY
     }
 
   }
+  else return 0;
  // State = READ_RF; //back to wait RF message
  // Mode = CONFIG_MODE; 
 //  first_run = true; 
@@ -457,12 +460,17 @@ void spider::runFunction(int device)
       Mode = RC_MODE; 
       keyState = buffer[6];
       varSlide = buffer[7];
-      if (keyState!=0) {  //when press; 
+     /* if (keyState!=0) {  //when press; 
       remoteProcessing();      
       }
-      else Robot.home();
+      else  {
+        Robot.home();//RC_type = RC_MANUAL;
+      } */
+      remoteProcessing();      
+
     }break;
    ///////////////////////////
+   
   }
 }
 /////////////
@@ -471,45 +479,58 @@ void spider::remoteProcessing(){
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
   ////////////////////////////////////////////////
- speed = map(varSlide,0,100,1000,300); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
-if (bitRead(keyState,0)) {  //forward
-  //forward(speed);
-  Robot.walk(4,speed);
+  bool shift = bitRead(keyState,4);
+ speed = map(varSlide,0,100,3000,300); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+if (bitRead(keyState,0)) { //forward
+  if(!shift)
+  {
+    Robot.walk(2,speed);
+  }
+  else 
+    Robot.dance(2,speed);
   RC_type = RC_MANUAL;
+ 
  } 
 else if (bitRead(keyState,1)) {
-  //backward(speed); 
-  Robot.back(4,speed);
-   RC_type = RC_MANUAL;
-
+  if(!shift)
+  {
+    Robot.back(2,speed);
+  }
+  else 
+    Robot.pushUp(2,speed);
+  RC_type = RC_MANUAL;
 }
 else if (bitRead(keyState,2)) {
-  //turnright(speed);
-  Robot.turnR(4,speed);
-   RC_type = RC_MANUAL;
-
+  if(!shift)
+  {
+    Robot.turnR(2,speed);
+  }
+  else 
+    Robot.upDown(2,speed);
+  RC_type = RC_MANUAL;
 }
 else if (bitRead(keyState,3)) {
-  //turnleft(speed);
-  Robot.turnL(4,speed);
-   RC_type = RC_MANUAL;
-
+  Robot.turnL(2,speed);
+  RC_type = RC_MANUAL;
 } 
 
-if (bitRead(keyState,4)) {   //F1 key press
-  
+ if (bitRead(keyState,4)) {   //F1 key press
+   RC_type = RC_MANUAL;
+
 }
 else if (bitRead(keyState,5)) {  //F2 key press
+   RC_type = RC_MANUAL;
 
 }
 else if (bitRead(keyState,6)) {  //F3 key press
-    ///avoid obstacle
    RC_type  = AVOID_OBSTACLE; 
+
    //State = RC; 
 }
+
 else if (bitRead(keyState,7)) {  //F4 key press
-    ///light follow
-      RC_type  = LIGHT_FOLLOW; 
+     // RC_type  = LIGHT_FOLLOW; 
+
     //  State = RC;
 }
 }     
@@ -695,24 +716,4 @@ long spider::readLong(int idx)
   val.byteVal[2] = readBuffer(idx+2);
   val.byteVal[3] = readBuffer(idx+3);
   return val.longVal;
-}
-void spider::playTone(int pin, int hz, int ms)
-{
-  int buzzer_pin = pin;
-  int period = 1000000L / hz;
-  int pulse = period / 2;
-  pinMode(buzzer_pin, OUTPUT);
-  for (long i = 0; i < ms * 1000L; i += period) 
-  {
-    digitalWrite(buzzer_pin, HIGH);
-    delayMicroseconds(pulse);
-    digitalWrite(buzzer_pin, LOW);
-    delayMicroseconds(pulse);
-   }
-}
-void spider::noTone(int pin)
-{
-  int buzzer_pin = pin;
-  pinMode(buzzer_pin, OUTPUT);
-  digitalWrite(buzzer_pin, LOW);
 }
