@@ -23,8 +23,6 @@ void Motion::init(){
     board_pins[7] = pin7; // Servo S7
 
     // Trim values for zero position calibration.
-<<<<<<< HEAD:minikame.cpp
-=======
     /*trim[0] = 0;
     trim[1] = -8;
     trim[2] = 8;
@@ -33,7 +31,6 @@ void Motion::init(){
     trim[5] = -6;
     trim[6] = 6;
     trim[7] = 5;*/
->>>>>>> 0adc6c632803500636e378bff9a3fdc0eafc071b:motion.cpp
     trim[0] = 0;
     trim[1] = 0;
     trim[2] = 0;
@@ -114,62 +111,7 @@ void Motion::runs(float steps, int T=5000){
 
     execute(steps, period, amplitude, offset, phase);
 }
-<<<<<<< HEAD:minikame.cpp
-
-void MiniKame::omniWalk(float steps, int T, bool side, float turn_factor){
-    int x_amp = -15;
-    int z_amp = -15;
-    int ap = 15;
-    int hi = 23;
-    int front_x = 6 * (1-pow(turn_factor, 2));
-    int period[] = {T, T, T, T, T, T, T, T};
-    int amplitude[] = {x_amp,x_amp,z_amp,z_amp,x_amp,x_amp,z_amp,z_amp};
-    int offset[] = {    90+ap-front_x,
-                        90-ap+front_x,
-                        90-hi,
-                        90+hi,
-                        90-ap-front_x,
-                        90+ap+front_x,
-                        90+hi,
-                        90-hi
-                    };
-
-    int phase[8];
-    if (side){
-        int phase1[] =  {0,   0,   90,  90,  180, 180, 90,  90};
-        int phase2R[] = {0,   180, 90,  90,  180, 0,   90,  90};
-        for (int i=0; i<8; i++)
-            phase[i] = phase1[i]*(1-turn_factor) + phase2R[i]*turn_factor;
-    }
-    else{
-        int phase1[] =  {0,   0,   90,  90,  180, 180, 90,  90};
-        int phase2L[] = {180, 0,   90,  90,  0,   180, 90,  90};
-        for (int i=0; i<8; i++)
-            phase[i] = phase1[i]*(1-turn_factor) + phase2L[i]*turn_factor + oscillator[i].getPhaseProgress();
-    }
-
-    execute(steps, period, amplitude, offset, phase);
-}
-
-void MiniKame::moonwalkL(float steps, int T=5000){
-    int z_amp = 45;
-    int z_amp1 = z_amp;
-    int z_amp2 = 180-z_amp;
- 
-    int os = 60;
-    int period[] = {T, T, T, T, T, T, T, T};
-    int amplitude[] = {0,0,z_amp,z_amp,0,0,z_amp,z_amp};
-    int offset[] = {90, 90, os, os, 90, 90, os, os};
-    int phase[] = {0,0,0,120,0,0,180,290};
-    //int phase[] = {0,0,120,120,0,0,180,180};
-
-    execute(steps, period, amplitude, offset, phase);
-}
-
-void MiniKame::walk(float steps, int T=5000){
-=======
 void Motion::walk(float steps, int T=5000){
->>>>>>> 0adc6c632803500636e378bff9a3fdc0eafc071b:motion.cpp
     int x_amp = -15;
     int z_amp = -20;
     int ap = -20;

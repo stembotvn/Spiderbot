@@ -74,7 +74,7 @@ public:
 	spider(){}
   RF24 myRadio=RF24(CE_PIN,CSN_PIN);
   EasyRF Radio = EasyRF(myRadio);
- /////system function///
+ /////system function//////
 	void init();
   void initNRF();
   void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM

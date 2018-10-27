@@ -175,20 +175,27 @@ void spider::parseData()
        runFunction(device);
        if (Mode == CONFIG_MODE) { 
          if (device == CONFIG) {
-           Mode = RUN_MODE; //done config, go back to run mode
+           Mode = RUN_MODE; //done config, go back to run mode, no ACK response
          State = READ_RF;
          first_run = true; }
          }
        else if (Mode == RC_MODE) {
           if (RC_type != RC_MANUAL) { 
+              callOK();   //response OK when complete action
+              writeRF(); 
               State = RC; 
+              first_run = true; 
+
             #ifdef DEBUG 
             Serial.println("RC Auto Mode, Goto RC State");
             #endif
           }
-          else {State = READ_RF; 
+          else {
+          callOK();   //response OK when complete action
+          State = WRITE_RF; 
           Mode = RUN_MODE;          
-          first_run = true; }
+          first_run = true; 
+          }
        }  
        else  {  
        callOK();   //response OK when complete action
@@ -234,8 +241,12 @@ switch (RC_type){
      int distance = getDistance();
      if (distance > 15) Robot.walk(2,speed); 
      else { 
+       Robot.home();
+       Sound.sing(S_confused); 
+       Robot.dance(2,speed);
+       Robot.back(2,speed);
        Robot.turnL(2,speed); 
-       if (getDistance()<15) Robot.turnR(2,speed);
+       if (getDistance()<15) Robot.turnR(4,speed);
          
         
      }
