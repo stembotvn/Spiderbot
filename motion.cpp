@@ -219,20 +219,23 @@ void Motion::pushUp(float steps, int T=600){
 
 void Motion::hello(){
     float sentado[]={90+15,90-15,90-65,90+65,90+20,90-20,90+10,90-10};
+    //float sentado[]={90,90,90-65,90+65,90,90,90+10,90-10};
+
     moveServos(150, sentado);
-    delay(200);
+    delay(600);
 
     int z_amp = 40;
     int x_amp = 60;
     int T=350;
     int period[] = {T, T, T, T, T, T, T, T};
-    int amplitude[] = {0,50,0,50,0,0,0,0};
-    int offset[] = {90+15,40,90-65,90,90+20,90-20,90+10,90-10};
+    int amplitude[] = {0,50,0,20,0,0,0,0};
+    int offset[] = {90-40,110,90,90+80,90+60,90,90+10,90-10};
     int phase[] = {0,0,0,90,0,0,0,0};
 
     execute(4, period, amplitude, offset, phase);
 
-    float goingUp[]={160,20,90,90,90-20,90+20,90+10,90-10};
+    //float goingUp[]={160,20,90,90,90-20,90+20,90+10,90-10};
+    float goingUp[]={90-20,90+20,90-10,90+10,90+20,90-20,90+10,90-10};
     moveServos(500, goingUp);
     delay(200);
 

@@ -65,9 +65,13 @@ http://stembot.vn
 #define RC_MANUAL  0
 #define LIGHT_FOLLOW    1
 #define AVOID_OBSTACLE 2
+#define CREATE_SOUND  3
 ///////////////////////////
 #define NETWORK 1
 #define PAIRING 0
+///////////////////////////
+#define LEFT 0
+#define RIGHT 1
 
 ////
 #define MASTER_NODE 0
@@ -120,8 +124,11 @@ private:
 	//Servo _knee4;
   //Servo servos[8];
   EasySonar SR04 = EasySonar(Trig,Echo);
-  double timeStart; 
+  double timeStart;
   int speed = 70;
+
+  int medium;
+
   uint16_t myNode = 2; 
   uint16_t toNode;
   uint16_t new_addr; 

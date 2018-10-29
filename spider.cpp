@@ -16,6 +16,7 @@ void spider::init(int _address)
    Serial.print("Guit Start, address: ");
    Serial.println(myNode); 
    #endif 
+   medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
    Robot.zero();
    Sound.sing(S_connection); 
 }
@@ -243,26 +244,35 @@ State = READ_RF;
 void spider::RC_Run(){
 switch (RC_type){ 
   case LIGHT_FOLLOW: {
-     
-   } break;
+     int left = getLight(LEFT);
+     int right = getLight(RIGHT);
+     if((right < (medium + 10)) && (left < medium + 10))
+        Robot.home();
+     else if((right > (medium + 20)) && (left > medium + 20))
+        Robot.walk(2,speed);
+     else if((left - right) > 30)
+        Robot.turnL(2,speed);
+     else if((right - left) > 30)
+        Robot.turnR(2,speed);
+  } break;
 
-   case AVOID_OBSTACLE: {
+  case AVOID_OBSTACLE: {
      int distance = getDistance();
      if (distance > 15) Robot.walk(2,speed); 
      else { 
        Robot.home();
        Sound.sing(S_confused); 
        Robot.dance(2,speed);
-       Robot.back(2,speed);
-       Robot.turnL(2,speed); 
+       Robot.back(3,speed);
+       Robot.turnL(3,speed); 
        if (getDistance()<15) Robot.turnR(4,speed);
-         
-        
      }
     } break;
-
-
+  case CREATE_SOUND: {
+    int songname = random(1,3);
+    Sound.playMusic(songname);
   }
+}
  State = READ_RF; 
  first_run = true;
 }
@@ -410,13 +420,6 @@ void spider::runFunction(int device)
  
     }
     break;
-    case RUN:
-    {
-      int v = readShort(6);
-      Robot.runs(2,v);
-      Mode = RUN_MODE;
-    }
-    break;
     case UPDOWN:
     {
       int v = readShort(6);
@@ -530,16 +533,22 @@ else if (bitRead(keyState,2)) {
   RC_type = RC_MANUAL;
 }
 else if (bitRead(keyState,3)) {
-  Robot.turnL(2,speed);
+  if(!shift)
+  {
+    Robot.turnL(2,speed);
+  }
+  else
+    Robot.hello();
   RC_type = RC_MANUAL;
 } 
 
- if (bitRead(keyState,4)) {   //F1 key press
+ if (bitRead(keyState,4)) {   //F1 key press(shift)
    RC_type = RC_MANUAL;
 
 }
 else if (bitRead(keyState,5)) {  //F2 key press
-   RC_type = RC_MANUAL;
+   RC_type  = LIGHT_FOLLOW; 
+   
 
 }
 else if (bitRead(keyState,6)) {  //F3 key press
@@ -549,7 +558,7 @@ else if (bitRead(keyState,6)) {  //F3 key press
 }
 
 else if (bitRead(keyState,7)) {  //F4 key press
-     // RC_type  = LIGHT_FOLLOW; 
+   RC_type  = CREATE_SOUND; 
 
     //  State = RC;
 }

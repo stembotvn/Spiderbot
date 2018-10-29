@@ -16,6 +16,8 @@ public:
 	void _tone (float noteFrequency, long noteDuration, int silentDuration);
     void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
     void sing(int songName);
+	void playNote(float noteFrequency, long noteDuration);
+	void playMusic(int name);
     NegendoSounds(int _pinBuzzer);
 private:
 
