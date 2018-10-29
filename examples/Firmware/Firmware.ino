@@ -5,8 +5,7 @@ spider Guti;
 //////////////////////////////////////
 void setup()
 {
-  Guti.init();
-  Guti.Robot.zero();
+  Guti.init(0);
 }
 ///////////////////////////
 void loop()

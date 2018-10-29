@@ -65,6 +65,10 @@ http://stembot.vn
 #define RC_MANUAL  0
 #define LIGHT_FOLLOW    1
 #define AVOID_OBSTACLE 2
+///////////////////////////
+#define NETWORK 1
+#define PAIRING 0
+
 ////
 #define MASTER_NODE 0
 class spider 
@@ -75,8 +79,8 @@ public:
   RF24 myRadio=RF24(CE_PIN,CSN_PIN);
   EasyRF Radio = EasyRF(myRadio);
  /////system function//////
-	void init();
-  void initNRF();
+	void init(int _address);
+  void initNRF(int _address);
   void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
   bool inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
 //////Robot Action//////
@@ -101,7 +105,7 @@ public:
   uint8_t keyState = 0;
   uint8_t varSlide = 0;
   uint8_t RC_type = RC_MANUAL;
-
+  bool connection = PAIRING; 
   NegendoSounds Sound = NegendoSounds(buzzer);
   Motion Robot = Motion(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
 
@@ -124,6 +128,7 @@ private:
   uint16_t  Default_Addr = 1000;
   uint16_t  Multicast_Node = 255;
   bool first_run = true;
+  bool actionDone = false; 
   uint8_t Mode = RUN_MODE; 
   int _Add[1];
   long _startTime;

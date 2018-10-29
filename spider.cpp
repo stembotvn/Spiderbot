@@ -2,27 +2,36 @@
 #include "RF24.h"
 #include <EEPROM.h>
 
-void spider::init()
+void spider::init(int _address)
 { 
-
+  
   pinMode(SET, INPUT_PULLUP);
   pinMode(buzzer, OUTPUT);
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
   Robot.init();
    Serial.begin(115200);
-   initNRF();
+   initNRF(_address);
    #ifdef DEBUG
    Serial.print("Guit Start, address: ");
    Serial.println(myNode); 
    #endif 
+   Robot.zero();
    Sound.sing(S_connection); 
 }
-void spider::initNRF()
+void spider::initNRF(int _address)
 {
-//config_Address(2,10);  
-load_address();
-Radio.init(myNode);    //init with my Node address
+//config_Address(2,10); 
+if (!_address){
+  load_address();
+  connection = PAIRING;
+}
+else  {
+  myNode = _address; 
+  toNode = 0;
+  connection = NETWORK;
+  } 
+ Radio.init(myNode);    //init with my Node address
  first_run = true;      //set first run for next State
 
 }
@@ -589,6 +598,12 @@ void spider::readSensor(int device)
     {
      uint8_t side = readBuffer(6); 
      sendFloat((float)getLight(side));
+    }
+    break;
+
+    case DONE:
+    {
+     sendFloat(actionDone);
     }
     break;
   } 

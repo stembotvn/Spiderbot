@@ -57,8 +57,11 @@ Define of ID function for Scratch interface
 
 ////////////////////////
 #define CONFIG 80 
+
 ///////////////////////
 #define RCDATA 90
+#define CHECKCONNECTED 91
+#define DONE 92
 
 
 #define GET 1
