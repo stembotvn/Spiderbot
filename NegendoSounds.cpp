@@ -230,5 +230,6 @@ void NegendoSounds::playMusic(int name)
     		playNote(698,250);
     		playNote(587,250);
     		playNote(523,1000);
+			break;
 	}
 }
