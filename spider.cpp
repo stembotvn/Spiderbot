@@ -17,6 +17,7 @@ void spider::init(int _address)
    Serial.println(myNode); 
    #endif 
    medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
+   randomSeed(analogRead(A5));
    Robot.zero();
    Sound.sing(S_connection); 
 }
@@ -271,7 +272,8 @@ switch (RC_type){
   case CREATE_SOUND: {
     int songname = random(1,3);
     Sound.playMusic(songname);
-  }
+    RC_type = RC_MANUAL;
+  } break;
 }
  State = READ_RF; 
  first_run = true;
