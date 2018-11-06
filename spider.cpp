@@ -26,9 +26,9 @@ if (!_address){
   load_address();
   connection = PAIRING;
 }
-else  {
-  myNode = _address; 
-  toNode = 0;
+else  {                  //Network addressing Mode
+  myNode = _address;     
+  toNode = 0;            //set Master address 
   connection = NETWORK;
   } 
  Radio.init(myNode);    //init with my Node address

@@ -4,8 +4,6 @@
         {
             "name": "Win32",
             "includePath": [
-                "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware/include",
-                "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/cores/arduino",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/variants/eightanaloginputs",
                 "c:/Users/thao/Documents/Arduino/libraries/Spiderbot",
@@ -35,6 +33,7 @@
                 "c:/Users/thao/Documents/Arduino/libraries/TinyGSM",
                 "c:/Users/thao/Documents/Arduino/libraries/WiFiManager",
                 "c:/Users/thao/Documents/Arduino/libraries/ZowiVbot",
+                "c:/Users/thao/Documents/Arduino/libraries/esp8266BlynkCar",
                 "c:/Users/thao/Documents/Arduino/libraries/rF24Dongle",
                 "c:/Users/thao/Documents/Arduino/libraries/virtuino",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/HID/src",
@@ -59,14 +58,14 @@
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/Temboo/src",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/WiFi/src",
                 "C:/Users/thao/.platformio/packages/tool-unity",
+                "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware/include",
+                "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware",
                 ""
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceRoot}/.vscode/.browse.c_cpp.db",
                 "path": [
-                    "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware/include",
-                    "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/cores/arduino",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/variants/eightanaloginputs",
                     "c:/Users/thao/Documents/Arduino/libraries/Spiderbot",
@@ -96,6 +95,7 @@
                     "c:/Users/thao/Documents/Arduino/libraries/TinyGSM",
                     "c:/Users/thao/Documents/Arduino/libraries/WiFiManager",
                     "c:/Users/thao/Documents/Arduino/libraries/ZowiVbot",
+                    "c:/Users/thao/Documents/Arduino/libraries/esp8266BlynkCar",
                     "c:/Users/thao/Documents/Arduino/libraries/rF24Dongle",
                     "c:/Users/thao/Documents/Arduino/libraries/virtuino",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/HID/src",
@@ -120,11 +120,13 @@
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/Temboo/src",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/WiFi/src",
                     "C:/Users/thao/.platformio/packages/tool-unity",
+                    "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware/include",
+                    "c:/Users/thao/Documents/Arduino/libraries/Spiderbot/examples/Firmware",
                     ""
                 ]
             },
             "defines": [
-                "PLATFORMIO=30601",
+                "PLATFORMIO=30602",
                 "ARDUINO_AVR_NANO",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",
