@@ -29,7 +29,14 @@ void NegendoSounds::bendTones(float initFrequency, float finalFrequency, float p
 			_tone(i, noteDuration, silentDuration);
 		}
 	}
+}void NegendoSounds::playNote(float noteFrequency, long noteDuration)
+{
+	tone(Buzzer_pin, noteFrequency, noteDuration);
+	int pauseBetweenNotes = noteDuration * 1.30;
+	delay(pauseBetweenNotes);
+	noTone(Buzzer_pin);
 }
+
 void NegendoSounds::sing(int songName)
 {
 	switch(songName)
@@ -119,6 +126,110 @@ void NegendoSounds::sing(int songName)
 		case S_fart3:
 			bendTones(1600, 4000, 1.02, 2, 20);
 			bendTones(4000, 3000, 1.02, 2, 20);
+			break;
+	}
+}
+void NegendoSounds::playMusic(int name)
+{
+	switch(name)
+	{
+		case CMHDT:
+			playNote(523,500);
+    		playNote(523,500);
+    		playNote(784,500);
+    		playNote(784,500);
+    		playNote(880,500);
+    		playNote(880,500);
+    		playNote(784,1000);
+
+    		playNote(698,500);
+    		playNote(698,500);
+    		playNote(659,500);
+    		playNote(659,500);
+    		playNote(587,500);
+    		playNote(587,500);
+    		playNote(523,1000);
+			break;
+		case HAPPY_BIRTHDAY:
+			playNote(523,500);
+    		//playNote(523,250);
+    		playNote(587,500);
+    		playNote(523,500);
+    		playNote(698,500);
+    		playNote(659,1000);
+
+    		playNote(523,500);
+    		//playNote(523,250);
+    		playNote(587,500);
+    		playNote(523,500);
+    		playNote(784,500);
+    		playNote(698,1000);
+
+    		playNote(523,500);
+    		//playNote(523,250);
+    		playNote(1047,500);
+    		playNote(880,500);
+    		playNote(698,500);
+    		playNote(659,500);
+    		playNote(587,1000);
+
+    		playNote(988,500);
+    		//playNote(988,250);
+    		playNote(880,500);
+    		playNote(698,500);
+    		playNote(784,500);
+    		playNote(698,1000);
+			break;
+		case JINGLE_BELLS:
+			playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,500);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,500);
+    		playNote(659,250);
+    		playNote(784,250);
+    		playNote(523,375);
+    		playNote(587,125);
+    		playNote(659,1000);
+    		playNote(698,250);
+    		playNote(698,250);
+    		playNote(698,375);
+    		playNote(698,125);
+    		playNote(698,250);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(587,250);
+    		playNote(587,250);
+    		playNote(659,250);
+    		playNote(587,500);
+    		playNote(784,500);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,500);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,500);
+    		playNote(659,250);
+    		playNote(784,250);
+    		playNote(523,375);
+    		playNote(587,125);
+    		playNote(659,1000);
+    		playNote(698,250);
+    		playNote(698,250);
+    		playNote(698,250);
+    		playNote(698,250);
+    		playNote(698,250);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(659,250);
+    		playNote(784,250);
+    		playNote(784,250);
+    		playNote(698,250);
+    		playNote(587,250);
+    		playNote(523,1000);
 			break;
 	}
 }

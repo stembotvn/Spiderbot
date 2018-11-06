@@ -41,7 +41,6 @@ Define of ID function for Scratch interface
 #define TOUCH_SENSOR 51
 
 #define RUN_SPIDER 60
-#define RUN 61
 #define UPDOWN 62
 #define PUSHUP 63
 #define DANCE 64
