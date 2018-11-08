@@ -29,7 +29,8 @@ void NegendoSounds::bendTones(float initFrequency, float finalFrequency, float p
 			_tone(i, noteDuration, silentDuration);
 		}
 	}
-}void NegendoSounds::playNote(float noteFrequency, long noteDuration)
+}
+void NegendoSounds::playNote(float noteFrequency, long noteDuration)
 {
 	tone(Buzzer_pin, noteFrequency, noteDuration);
 	int pauseBetweenNotes = noteDuration * 1.30;
@@ -129,6 +130,7 @@ void NegendoSounds::sing(int songName)
 			break;
 	}
 }
+
 void NegendoSounds::playMusic(int name)
 {
 	switch(name)
@@ -179,7 +181,7 @@ void NegendoSounds::playMusic(int name)
     		playNote(698,500);
     		playNote(784,500);
     		playNote(698,1000);
-			break;
+			break;  
 		case JINGLE_BELLS:
 			playNote(659,250);
     		playNote(659,250);
@@ -230,6 +232,6 @@ void NegendoSounds::playMusic(int name)
     		playNote(698,250);
     		playNote(587,250);
     		playNote(523,1000);
-			break;
+			break; 
 	}
-}
+}  

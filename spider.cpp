@@ -17,7 +17,7 @@ void spider::init(int _address)
    Serial.println(myNode); 
    #endif 
    medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
-   randomSeed(analogRead(A5));
+  // randomSeed(analogRead(A5));
    Robot.zero();
    Sound.sing(S_connection); 
 }
@@ -25,6 +25,9 @@ void spider::initNRF(int _address)
 {
 //config_Address(2,10); 
 if (!_address){
+  #if DEBUG
+  Serial.println("Pairing Mode loading...");
+  #endif
   load_address();
   connection = PAIRING;
 }
@@ -50,6 +53,8 @@ void spider::load_address()
    #ifdef DEBUG
   Serial.print("My Address: ");
   Serial.println(myNode);
+   Serial.print("Target Address: ");
+  Serial.println(toNode);
     #endif
 
  // Radio.init(myNode);    //init with my Node address
@@ -111,11 +116,12 @@ RFread_size = 0;
 if ( Radio.RFDataCome() )  {
     Serial.println("RF data come!");
 
-    while (Radio.RFDataCome()) {
+   // while (Radio.RFDataCome()) {
 
     RFread_size = Radio.RFRead(buffer);
     isAvailable = true; 
-    if (RFread_size <3) return; 
+  //  }
+    if (RFread_size <3) return;
     else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 3)){
       
        #ifdef DEBUG 
@@ -125,14 +131,19 @@ if ( Radio.RFDataCome() )  {
    #endif 
      State = PARSING;
      first_run = true;      //set first run for next State
-      
+     #ifdef DEBUG
+     Serial.println("Go to State 1: PARSING");
+     #endif  
+     return;
     }
-    else  {Serial.println("invalid data received"); 
+    else  {
+      Serial.println("invalid data received"); 
      State = READ_RF;
      first_run = true;      //set first run for next State
+     return;
     }
    //Data available, go to Parsing
-   }
+   
   
  }
 else {
@@ -190,10 +201,10 @@ void spider::parseData()
          State = READ_RF;
          first_run = true; }
          }
-       else if (Mode == RC_MODE) {
+       else if (Mode == RC_MODE) {    //in RC Mode 
           if (RC_type != RC_MANUAL) { 
-              callOK();   //response OK when complete action
-              writeRF(); 
+              callOK();   //response OK to Remote
+              writeRF();  //
               State = RC; 
               first_run = true; 
 
@@ -202,22 +213,29 @@ void spider::parseData()
             #endif
           }
           else {
+             
           callOK();   //response OK when complete action
           State = WRITE_RF; 
           Mode = RUN_MODE;          
           first_run = true; 
           }
        }  
-       else  {  
+       else  {  //in USB wireless mode
        callOK();   //response OK when complete action
+       #ifdef DEBUG 
+            Serial.println("Scratch command Done, go to send response");
+        #endif 
+       // delay(2000);
        State = WRITE_RF;
        first_run = true;   //set first run for next State
          }    
-       clearBuffer(buffer,20);  //clear 20byte of receiving buffers 
+       
+      
      }
       break;
      
   }
+   clearBuffer(buffer,32);  //clear 20byte of receiving buffers 
 }
 ///////////
 void spider::writeRF() {
@@ -237,7 +255,7 @@ else {
  }  
 ind = 0; 
 State = READ_RF; 
-  first_run = true;      //set first run for next State
+first_run = true;      //set first run for next State
 
 
 }
@@ -272,6 +290,7 @@ switch (RC_type){
   case CREATE_SOUND: {
     int songname = random(1,3);
     Sound.playMusic(songname);
+  //  Sound.playMusic(songname);
     RC_type = RC_MANUAL;
   } break;
 }
@@ -385,8 +404,8 @@ void spider::run(){
 void spider::runFunction(int device)
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-  int port = buffer[6];
-  int pin = port;
+  //int port = buffer[6];
+  //int pin = port;
   switch(device)
   {
        
@@ -399,22 +418,22 @@ void spider::runFunction(int device)
       {
         case 1:
         {
-          Robot.walk(4,500);
+          Robot.walk(4,speed);
           break;
         }
         case 2:
         {
-          Robot.back(4,500);
+          Robot.back(4,speed);
           break;
         }
         case 3:
         {
-          Robot.turnL(4,500);
+          Robot.turnL(4,speed);
           break;
         }
         case 4:
         {
-          Robot.turnR(4,500);
+          Robot.turnR(4,speed);
           break;
         }
       }
@@ -580,26 +599,7 @@ void spider::readSensor(int device)
   pin = port;
   switch(device)
   {
-    case  DIGITAL:
-    {
-      pinMode(pin,INPUT);
-      sendFloat(digitalRead(pin));
-    }
-    break;
-    case  ANALOG:
-    {
-      pin = analogs[pin];
-      pinMode(pin,INPUT);
-      sendFloat(analogRead(pin));
-    }
-    break;
-    case TIMER:
-    {
-      sendFloat((float)currentTime);
-    }
-    break;
-
-    case DISTANCE:
+     case DISTANCE:
     {
       sendFloat((float)getDistance());
     }
@@ -662,7 +662,7 @@ return ((two & 0xFF) + ((one<<8)&0xFFFF));
 }
 ///////////////////////////
 void spider::clearBuffer(unsigned char *buf, int leng){
-  for (int i=0;i<=leng;i++) {
+  for (int i=0;i<leng;i++) {
     *(buf+i) = 0; 
   }
 }

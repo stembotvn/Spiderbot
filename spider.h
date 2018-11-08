@@ -114,15 +114,7 @@ public:
   Motion Robot = Motion(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
 
 private:
-  //Servo _hip1;
-	//Servo _knee1;
-	//Servo _hip2;
-	//Servo _knee2;
-	//Servo _hip3;
-	//Servo _knee3;
-	//Servo _hip4;
-	//Servo _knee4;
-  //Servo servos[8];
+
   EasySonar SR04 = EasySonar(Trig,Echo);
   double timeStart;
   int speed = 70;
@@ -151,13 +143,11 @@ private:
   int dataLen;
   unsigned char buffer[32]; //for reading RF
   unsigned char RF_buf[32]; //for writing RF
-  unsigned char RC_buf[20]; //for Reading Remote
   uint8_t command_index = 0;
   float angleServo = 90.0;
   int servo_pins[8]={0,0,0,0,0,0,0,0};
   double lastTime = 0.0;
   double currentTime = 0.0;
-  int analogs[8]={A0,A1,A2,A3,A4,A5,A6,A7};
      ///////////////////////////
   union
   {

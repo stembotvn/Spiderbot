@@ -6,6 +6,7 @@
             "includePath": [
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/cores/arduino",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/variants/eightanaloginputs",
+                "c:/Users/thao/Documents/Arduino/libraries/EasyRF",
                 "c:/Users/thao/Documents/Arduino/libraries/Spiderbot",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/EEPROM/src",
                 "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/SPI/src",
@@ -20,7 +21,6 @@
                 "c:/Users/thao/Documents/Arduino/libraries/CayenneMQTT/src",
                 "c:/Users/thao/Documents/Arduino/libraries/DAC_MCP49xx",
                 "c:/Users/thao/Documents/Arduino/libraries/EEPROMEx",
-                "c:/Users/thao/Documents/Arduino/libraries/EasyRF",
                 "c:/Users/thao/Documents/Arduino/libraries/Easybot",
                 "c:/Users/thao/Documents/Arduino/libraries/MJbot",
                 "c:/Users/thao/Documents/Arduino/libraries/NegendoTx",
@@ -68,6 +68,7 @@
                 "path": [
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/cores/arduino",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/variants/eightanaloginputs",
+                    "c:/Users/thao/Documents/Arduino/libraries/EasyRF",
                     "c:/Users/thao/Documents/Arduino/libraries/Spiderbot",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/EEPROM/src",
                     "C:/Users/thao/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/SPI/src",
@@ -82,7 +83,6 @@
                     "c:/Users/thao/Documents/Arduino/libraries/CayenneMQTT/src",
                     "c:/Users/thao/Documents/Arduino/libraries/DAC_MCP49xx",
                     "c:/Users/thao/Documents/Arduino/libraries/EEPROMEx",
-                    "c:/Users/thao/Documents/Arduino/libraries/EasyRF",
                     "c:/Users/thao/Documents/Arduino/libraries/Easybot",
                     "c:/Users/thao/Documents/Arduino/libraries/MJbot",
                     "c:/Users/thao/Documents/Arduino/libraries/NegendoTx",
