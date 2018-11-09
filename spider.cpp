@@ -17,7 +17,7 @@ void spider::init(int _address)
    Serial.println(myNode); 
    #endif 
    medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
-  // randomSeed(analogRead(A5));
+   //randomSeed(millis());
    Robot.zero();
    Sound.sing(S_connection); 
 }
@@ -288,10 +288,10 @@ switch (RC_type){
      }
     } break;
   case CREATE_SOUND: {
-    int songname = random(1,3);
     Sound.playMusic(songname);
-  //  Sound.playMusic(songname);
     RC_type = RC_MANUAL;
+    songname--;
+    if(songname <= 0)  songname = 3;
   } break;
 }
  State = READ_RF; 
@@ -418,22 +418,22 @@ void spider::runFunction(int device)
       {
         case 1:
         {
-          Robot.walk(4,speed);
+          Robot.walk(1,speed);
           break;
         }
         case 2:
         {
-          Robot.back(4,speed);
+          Robot.back(1,speed);
           break;
         }
         case 3:
         {
-          Robot.turnL(4,speed);
+          Robot.turnL(1,speed);
           break;
         }
         case 4:
         {
-          Robot.turnR(4,speed);
+          Robot.turnR(1,speed);
           break;
         }
       }
@@ -528,7 +528,7 @@ void spider::remoteProcessing(){
 if (bitRead(keyState,0)) { //forward
   if(!shift)
   {
-    Robot.walk(2,speed);
+    Robot.walk(1,speed);
   }
   else 
     Robot.dance(2,speed);
@@ -538,7 +538,7 @@ if (bitRead(keyState,0)) { //forward
 else if (bitRead(keyState,1)) {
   if(!shift)
   {
-    Robot.back(2,speed);
+    Robot.back(1,speed);
   }
   else 
     Robot.pushUp(2,speed);
@@ -547,7 +547,7 @@ else if (bitRead(keyState,1)) {
 else if (bitRead(keyState,2)) {
   if(!shift)
   {
-    Robot.turnR(2,speed);
+    Robot.turnR(1,speed);
   }
   else 
     Robot.upDown(2,speed);
@@ -556,7 +556,7 @@ else if (bitRead(keyState,2)) {
 else if (bitRead(keyState,3)) {
   if(!shift)
   {
-    Robot.turnL(2,speed);
+    Robot.turnL(1,speed);
   }
   else
     Robot.hello();
