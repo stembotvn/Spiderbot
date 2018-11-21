@@ -130,4 +130,7 @@
 #define S_fart2			17
 #define S_fart3			18
 
+#define CMHDT   1
+#define HAPPY_BIRTHDAY    2
+#define JINGLE_BELLS    3
 #endif

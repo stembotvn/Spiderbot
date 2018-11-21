@@ -41,15 +41,26 @@ Define of ID function for Scratch interface
 #define TOUCH_SENSOR 51
 
 #define RUN_SPIDER 60
-#define SLEEP 61
-#define STANDUP 62
-#define LAYDOWN 63
-#define DANCE 64
-#define HELLO 65
-#define EXERCISE 66
-#define STAND1 67
-#define STAND2 68
-#define STAND3 69
+#define UPDOWN 61
+#define PUSHUP 62
+#define DANCE 63
+#define HELLO 64
+#define HOME 65
+#define ZERO 66
+#define SING 67
+///////GET////////
+#define DISTANCE 71
+#define LIGHT_LEVEL 72
+#define ACTION 73
+
+////////////////////////
+#define CONFIG 80 
+
+///////////////////////
+#define RCDATA 90
+#define CHECKCONNECTED 91
+#define DONE 92
+
 
 #define GET 1
 #define RUN 2

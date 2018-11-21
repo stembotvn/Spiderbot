@@ -13,12 +13,16 @@ http://stembot.vn
 */
 #ifndef spider_h
 #define spider_h
-
-#include "RF24.h"
+#define DEBUG 1
+//#include "RF24.h"
+//#include "RF24Network.h"
+#include "EasyRF.h"
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Servo.h>
-#include "Sounds.h"
+#include "EasySonar.h"
+#include "NegendoSounds.h"
+#include "motion.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -43,77 +47,108 @@ http://stembot.vn
 #define CE_PIN    A2
 #define CSN_PIN   A3
 #define SET       A4
-#define LDR1      A6
-#define LDR2      A7
+#define LDR1      A6  
+#define LDR2      A7 
+////////define State 
+#define READ_RF   0
+#define PARSING   1
+#define RUN_CMD  2
+#define GET_DATA 3
+#define RC       4
+#define WRITE_RF 5
+#define IN_CONFIG 6
+///define for operation Mode
+#define RUN_MODE 0
+#define CONFIG_MODE 1
+#define RC_MODE 2
+////////////////////////////
+#define RC_MANUAL  0
+#define LIGHT_FOLLOW    1
+#define AVOID_OBSTACLE 2
+#define CREATE_SOUND  3
+///////////////////////////
+#define NETWORK 1
+#define PAIRING 0
+///////////////////////////
+#define LEFT 0
+#define RIGHT 1
 
-class spider
+////
+#define MASTER_NODE 0
+class spider 
 {
 public:
+
 	spider(){}
+  RF24 myRadio=RF24(CE_PIN,CSN_PIN);
+  EasyRF Radio = EasyRF(myRadio);
+ /////system function//////
+	void init(int _address);
+  void initNRF(int _address);
+  void load_address();        // Chuyển đổi địa chỉ lưu từ EEPROM
+  bool inConfig();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
+//////Robot Action//////
+  void move(int type,int step, int speed);
+  void action(int type,int t);
+  void rest();
 
-	void init();
-  void initNRF();
-  void convertAdd();        // Chuyển đổi địa chỉ lưu từ EEPROM
-  void setAddress();        // Nhận địa chỉ ngẫu nhiên từ Transmitter
-	void standUp(int t);
-	void layDown(int t);
-	void sleep(int t);
-	void stand1();
-	void stand2();
-	void stand3();
-	void start(int t);
-	void hello(int t);
-	void exercise(int t);
-	void forward(int late);
-	void backward(int late);
-	void turnright(int late);
-	void turnleft(int late);
-  void tones(uint16_t frequency, uint32_t duration); // Hàm điều chỉnh âm điệu của còi
-  void tick(int n, uint16_t frequency, int times);
-	void readSerial();
-	void Scratch_command_processing();
-
-  void _tone (float noteFrequency, long noteDuration, int silentDuration);
-  void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
-  void sing(int songName);
+  float  getDistance();        //get Distance in CM
+  int  getLight(byte side);  // get Light  level in %
+  ///State Function/////
+  void config_Address(uint16_t myaddress,uint16_t toAddress);
+  void readRF();
+  void parseData();
+  void writeRF();
+  void RC_Run();
+  void run();
+  ////
+  void PrintDebug(unsigned char *buf,int len);
+  void remoteProcessing();
+  ///
+  int State = 0;
+  uint8_t keyState = 0;
+  uint8_t varSlide = 0;
+  uint8_t RC_type = RC_MANUAL;
+  bool connection = PAIRING; 
+  NegendoSounds Sound = NegendoSounds(buzzer);
+  Motion Robot = Motion(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
+  bool connectionType = PAIRING;
 private:
-  Servo _hip1;
-	Servo _knee1;
-	Servo _hip2;
-	Servo _knee2;
-	Servo _hip3;
-	Servo _knee3;
-	Servo _hip4;
-	Servo _knee4;
-  Servo servos[8];
-  RF24 radio = RF24(CE_PIN, CSN_PIN);
 
-  const uint64_t _AddDefault = 0xF0F0F0F001LL;  // Địa chỉ truyền tín hiệu NRF24L01 mặc định
-  uint64_t _AddRandom;              // Địa chỉ set ngẫu nhiên
-  byte _readAdd;
-  byte _address;
+  EasySonar SR04 = EasySonar(Trig,Echo);
+  double timeStart;
+  int speed = 70;
+  int songname = 3;
+
+  int medium;
+
+  uint16_t myNode = 2; 
+  uint16_t toNode;
+  uint16_t new_addr; 
+  uint16_t  Default_Addr = 1000;
+  uint16_t  Multicast_Node = 255;
+  bool first_run = true;
+  bool actionDone = false; 
+  uint8_t Mode = RUN_MODE; 
   int _Add[1];
-  long _duration;
   long _startTime;
   long _timeout = 10000L;
-
+  int  RFread_size; 
   bool _readDone = false; 
   char _buffer[64];
-	int _sofar;
-	int _count;
 	bool  isAvailable = false;
-	char serialRead;
   bool isStart=false;
   unsigned char prevc=0;
   int index = 0;
+  int ind = 0; 
   int dataLen;
-  char buffer[52];
+  unsigned char buffer[32]; //for reading RF
+  unsigned char RF_buf[32]; //for writing RF
   uint8_t command_index = 0;
   float angleServo = 90.0;
   int servo_pins[8]={0,0,0,0,0,0,0,0};
   double lastTime = 0.0;
   double currentTime = 0.0;
-  int analogs[8]={A0,A1,A2,A3,A4,A5,A6,A7};
      ///////////////////////////
   union
   {
@@ -135,13 +170,12 @@ private:
     short shortVal;
   }valShort;
   /////////////////////////////////////////
-  void parseData();
   void writeHead();
   void writeEnd();
-  void writeSerial(unsigned char c);
   /////////////////////////////////////////
-  unsigned char readBuffer(int index);
-  void writeBuffer(int index,unsigned char c);
+  unsigned char readBuffer(int index);  //read RF Comming buffer
+  void writeBuffer(int index,unsigned char c); //write to RF Sending Buffer
+  void clearBuffer(unsigned char *buf, int leng);
   /////////////////////////////////
   void callOK();
   void sendByte(char c);
@@ -152,13 +186,12 @@ private:
   short readShort(int idx);
   float readFloat(int idx);
   long readLong(int idx);
-  ////
-  void playTone(int pin, int hz, int ms);
-  void noTone(int pin);
-  ///
-  void runModule(int device);
+
+  void runFunction(int device);
   int searchServoPin(int pin);
   void readSensor(int device);
+  //////////////////////////////////////////
+  void EEPROM_writeInt(int address,uint16_t value);
+  uint16_t EEPROM_readInt(int address);
 };
-
 #endif 

@@ -1,23 +1,15 @@
-#include <spider.h>
-#include "IRremote.h"
+#include "spider.h"
 
-spider robot;
+spider Guti;
 
 //////////////////////////////////////
 void setup()
 {
-  robot.init();
-  robot.initRemote();
-  Serial.begin(115200);
-  robot.stand1();
+  Guti.init(0);
 }
 ///////////////////////////
 void loop()
 {
-  //robot.ReadRemote();
-  //delay(10);
-  robot.readSerial();
-  //robot.parse_SpiderCMD();
-  robot.Scratch_command_processing();
+  Guti.run();
 }
 
