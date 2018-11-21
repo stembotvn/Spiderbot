@@ -112,7 +112,7 @@ public:
   bool connection = PAIRING; 
   NegendoSounds Sound = NegendoSounds(buzzer);
   Motion Robot = Motion(hip1_pin, knee1_pin, hip2_pin, knee2_pin, hip3_pin, knee3_pin, hip4_pin, knee4_pin);
-
+  bool connectionType = PAIRING;
 private:
 
   EasySonar SR04 = EasySonar(Trig,Echo);

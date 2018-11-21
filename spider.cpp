@@ -1,4 +1,4 @@
-#include <spider.h>
+#include "spider.h"
 #include "RF24.h"
 #include <EEPROM.h>
 
@@ -23,22 +23,21 @@ void spider::init(int _address)
 }
 void spider::initNRF(int _address)
 {
-//config_Address(2,10); 
-if (!_address){
-  #if DEBUG
-  Serial.println("Pairing Mode loading...");
-  #endif
-  load_address();
-  connection = PAIRING;
-}
-else  {                  //Network addressing Mode
-  myNode = _address;     
-  toNode = 0;            //set Master address 
-  connection = NETWORK;
+  //config_Address(2,10); 
+  if (!_address){
+    #if DEBUG
+    Serial.println("Pairing Mode loading...");
+    #endif
+    load_address();
+    connection = PAIRING;
+  }
+  else  {                  //Network addressing Mode
+    myNode = _address;     
+    toNode = 0;            //set Master address 
+    connection = NETWORK;
   } 
- Radio.init(myNode);    //init with my Node address
- first_run = true;      //set first run for next State
-
+  Radio.init(myNode);    //init with my Node address
+  first_run = true;      //set first run for next State
 }
 ////
 
@@ -112,13 +111,17 @@ switch (types) {
 ////
 void spider::readRF(){
 RFread_size = 0; 
-
-if ( Radio.RFDataCome() )  {
+uint8_t pipenum; 
+if ( Radio.RFDataCome(pipenum) )  {
     Serial.println("RF data come!");
-
+    #ifdef DEBUG
+      Serial.print("pipenum: ");
+      Serial.println(pipenum);
+    #endif
    // while (Radio.RFDataCome()) {
-
-    RFread_size = Radio.RFRead(buffer);
+    if (pipenum==1)    connectionType = PAIRING; 
+    else if (pipenum == 2) connectionType = NETWORK; 
+     RFread_size = Radio.RFRead(buffer); 
     isAvailable = true; 
   //  }
     if (RFread_size <3) return;
@@ -182,6 +185,7 @@ void spider::parseData()
   int device = buffer[5];
   switch(action){
     case GET:{
+      if (connectionType==PAIRING) {
         if(device != ULTRASONIC_SENSOR){
           writeHead();
           writeBuffer(ind++,idx);
@@ -190,7 +194,11 @@ void spider::parseData()
         writeEnd();
         State = WRITE_RF;
         first_run = true;      //set first run for next State
-
+      }
+      else {
+        State = READ_RF;
+        first_run = true; 
+      }
      }
      break;
      case RUN:{ //need DEBUG Here
@@ -221,14 +229,20 @@ void spider::parseData()
           }
        }  
        else  {  //in USB wireless mode
-       callOK();   //response OK when complete action
-       #ifdef DEBUG 
+       if(connectionType == PAIRING){
+          callOK();   //response OK when complete action
+          #ifdef DEBUG 
             Serial.println("Scratch command Done, go to send response");
-        #endif 
-       // delay(2000);
-       State = WRITE_RF;
-       first_run = true;   //set first run for next State
-         }    
+          #endif 
+        // delay(2000);
+          State = WRITE_RF;
+          first_run = true; 
+        }
+       else{
+          State = READ_RF;
+          first_run = true; 
+        }  //set first run for next State
+        }    
        
       
      }
