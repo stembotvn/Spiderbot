@@ -37,6 +37,7 @@ void spider::initNRF(int _address)
     connection = NETWORK;
   } 
   Radio.init(myNode);    //init with my Node address
+  Radio.Multicast_readingStart();
   first_run = true;      //set first run for next State
 }
 ////
