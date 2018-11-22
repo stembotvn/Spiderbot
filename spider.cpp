@@ -37,7 +37,7 @@ void spider::initNRF(int _address)
     connection = NETWORK;
   } 
   Radio.init(myNode);    //init with my Node address
-  Radio.Multicast_readingStart();
+  //Radio.Multicast_readingStart();
   first_run = true;      //set first run for next State
 }
 ////
@@ -112,19 +112,20 @@ switch (types) {
 ////
 void spider::readRF(){
 RFread_size = 0; 
-uint8_t pipenum; 
-if ( Radio.RFDataCome(pipenum) )  {
+//uint8_t pipenum; 
+//if ( Radio.RFDataCome(pipenum) )  {
+  if ( Radio.RFDataCome() )  {
     Serial.println("RF data come!");
     #ifdef DEBUG
-      Serial.print("pipenum: ");
-      Serial.println(pipenum);
+    //  Serial.print("pipenum: ");
+    //  Serial.println(pipenum);
     #endif
-   // while (Radio.RFDataCome()) {
-    if (pipenum==1)    connectionType = PAIRING; 
-    else if (pipenum == 2) connectionType = NETWORK; 
+    while (Radio.RFDataCome()) {
+   // if (pipenum==1)    connectionType = PAIRING; 
+   // else if (pipenum == 2) connectionType = NETWORK; 
      RFread_size = Radio.RFRead(buffer); 
-    isAvailable = true; 
-  //  }
+        }
+        isAvailable = true; 
     if (RFread_size <3) return;
     else if (buffer[0]==0xFF && buffer[1] == 0x55 && buffer[2] == (RFread_size - 3)){
       
