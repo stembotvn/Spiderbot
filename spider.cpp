@@ -143,7 +143,8 @@ RFread_size = 0;
     }
     else  {
       Serial.println("invalid data received"); 
-     State = READ_RF;
+      callOK();
+     State = WRITE_RF;  
      first_run = true;      //set first run for next State
      return;
     }
