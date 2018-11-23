@@ -498,9 +498,10 @@ void spider::runFunction(int device)
       Mode = RUN_MODE;
     }
     break;
-   case ACTION:
+   case SING:
     {
-      Robot.home();
+      int song = readShort(6);
+      Sound.playMusic(song);
       Mode = RUN_MODE;
     }
     break;
