@@ -143,7 +143,7 @@ private:
   int ind = 0; 
   int dataLen;
   unsigned char buffer[32]; //for reading RF
-  unsigned char RF_buf[32]; //for writing RF
+  unsigned char RF_buf[12]; //for writing RF
   uint8_t command_index = 0;
   float angleServo = 90.0;
   int servo_pins[8]={0,0,0,0,0,0,0,0};

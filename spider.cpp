@@ -252,11 +252,11 @@ void spider::parseData()
       break;
      
   }
-   clearBuffer(buffer,32);  //clear 20byte of receiving buffers 
+   clearBuffer(buffer,sizeof(buffer));  //clear 20byte of receiving buffers 
 }
 ///////////
 void spider::writeRF() {
-bool OK = Radio.RFSend(toNode,RF_buf,ind+1);
+bool OK = Radio.RFSend(toNode,RF_buf,sizeof(RF_buf));
 if (OK) {
    #ifdef DEBUG 
     Serial.print("Sent buffer: ");
